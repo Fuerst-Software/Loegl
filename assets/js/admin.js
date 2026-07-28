@@ -18,28 +18,16 @@ const DEFAULT_PRODUCTS = [
     specs: 'Material: Cromargan® Edelstahl 18/10 | Inhalt: 3x Fleischtopf, 1x Bratentopf'
   },
   {
-    id: 'BOSCH-301',
-    title: 'Bosch MUM5 Küchenmaschine Serie 4',
-    brand: 'Bosch',
-    category: 'elektro bosch',
-    price: '299,90 €',
+    id: 'ROWENTA-301',
+    title: 'Rowenta Silence Force Elektro-Staubsauger',
+    brand: 'Rowenta',
+    category: 'elektro rowenta',
+    price: '199,90 €',
     stock: 4,
     active: true,
-    img: 'assets/products/bosch_mum5.jpg',
-    desc: 'Die Bosch MUM5 ist der vielseitige Allrounder in der modernen Küche. Dank 3D PlanetaryMixing verbleiben keine Teigreste am Schüsselrand.',
-    specs: 'Leistung: 1000 Watt | Schüssel: 3,9L Edelstahl'
-  },
-  {
-    id: 'MIELE-401',
-    title: 'Miele Complete C3 PowerLine Staubsauger',
-    brand: 'Miele',
-    category: 'elektro miele',
-    price: '289,00 €',
-    stock: 5,
-    active: true,
-    img: 'assets/products/miele_c3.jpg',
-    desc: 'Spitzenklasse in der Bodenpflege: Der Miele Complete C3 besticht durch extrem hohe Saugleistung und hygienischen AirClean Filter.',
-    specs: 'Motor: PowerLine 890W | Filter: AirClean Plus Filter'
+    img: 'assets/stock/sortiment-elektro.jpg',
+    desc: 'Extrem leise und leistungsstark: Der Rowenta Silence Force vereint erstklassige Reinigungsleistung auf allen Böden mit flüsterleisem Betrieb.',
+    specs: 'Leistung: 750 Watt | Lautstärke: 57 dB(A) | Aktionsradius: 12 Meter'
   },
   {
     id: 'RIESS-601',
@@ -80,13 +68,13 @@ const DEFAULT_AKTIONEN = [
   },
   {
     id: 'AKT-2',
-    title: 'Miele Jubiläums-Cashback Aktion',
+    title: 'Rowenta & Krups Elektro-Aktionswochen',
     type: 'angebot',
     date: 'Gültig bis 15. September 2026',
     active: true,
-    img: 'assets/products/miele_c3.jpg',
-    desc: 'Beim Kauf eines Miele Complete C3 Bodenstaubsaugers schenken wir Ihnen 50 € Direkt-Gutschrift an der Kassa in Mattsee.',
-    badge: '50 € Direkt-Gutschrift vor Ort'
+    img: 'assets/stock/sortiment-elektro.jpg',
+    desc: 'Beim Kauf eines ausgewählten Rowenta oder Krups Elektrogeräts schenken wir Ihnen 30 € Direkt-Gutschrift an der Kassa in Mattsee.',
+    badge: '30 € Direkt-Gutschrift vor Ort'
   },
   {
     id: 'AKT-4',
@@ -106,7 +94,12 @@ function getStoredProducts() {
     localStorage.setItem('loegl_products', JSON.stringify(DEFAULT_PRODUCTS));
     return DEFAULT_PRODUCTS;
   }
-  try { return JSON.parse(data); } catch (e) { return DEFAULT_PRODUCTS; }
+  try {
+    let prods = JSON.parse(data);
+    prods = prods.filter(p => !['bosch', 'miele', 'alfi'].includes((p.brand || '').toLowerCase()));
+    localStorage.setItem('loegl_products', JSON.stringify(prods));
+    return prods;
+  } catch (e) { return DEFAULT_PRODUCTS; }
 }
 
 function saveStoredProducts(products) {
@@ -119,7 +112,12 @@ function getStoredAktionen() {
     localStorage.setItem('loegl_aktionen', JSON.stringify(DEFAULT_AKTIONEN));
     return DEFAULT_AKTIONEN;
   }
-  try { return JSON.parse(data); } catch (e) { return DEFAULT_AKTIONEN; }
+  try {
+    let akt = JSON.parse(data);
+    akt = akt.filter(a => !['miele', 'bosch', 'alfi'].some(b => (a.title || '').toLowerCase().includes(b)));
+    localStorage.setItem('loegl_aktionen', JSON.stringify(akt));
+    return akt;
+  } catch (e) { return DEFAULT_AKTIONEN; }
 }
 
 function saveStoredAktionen(aktionen) {

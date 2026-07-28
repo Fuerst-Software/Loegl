@@ -18,28 +18,16 @@ const DEFAULT_PRODUCTS = [
     specs: 'Material: Cromargan® Edelstahl 18/10 | Inhalt: 3x Fleischtopf, 1x Bratentopf'
   },
   {
-    id: 'BOSCH-301',
-    title: 'Bosch MUM5 Küchenmaschine Serie 4',
-    brand: 'Bosch',
-    category: 'elektro bosch',
-    price: '299,90 €',
+    id: 'ROWENTA-301',
+    title: 'Rowenta Silence Force Elektro-Staubsauger',
+    brand: 'Rowenta',
+    category: 'elektro rowenta',
+    price: '199,90 €',
     stock: 4,
     active: true,
-    img: 'assets/products/bosch_mum5.jpg',
-    desc: 'Die Bosch MUM5 ist der vielseitige Allrounder in der modernen Küche. Dank 3D PlanetaryMixing verbleiben keine Teigreste am Schüsselrand.',
-    specs: 'Leistung: 1000 Watt | Schüssel: 3,9L Edelstahl'
-  },
-  {
-    id: 'MIELE-401',
-    title: 'Miele Complete C3 PowerLine Staubsauger',
-    brand: 'Miele',
-    category: 'elektro miele',
-    price: '289,00 €',
-    stock: 5,
-    active: true,
-    img: 'assets/products/miele_c3.jpg',
-    desc: 'Spitzenklasse in der Bodenpflege: Der Miele Complete C3 besticht durch extrem hohe Saugleistung und hygienischen AirClean Filter.',
-    specs: 'Motor: PowerLine 890W | Filter: AirClean Plus Filter'
+    img: 'assets/stock/sortiment-elektro.jpg',
+    desc: 'Extrem leise und leistungsstark: Der Rowenta Silence Force vereint erstklassige Reinigungsleistung auf allen Böden mit flüsterleisem Betrieb.',
+    specs: 'Leistung: 750 Watt | Lautstärke: 57 dB(A) | Aktionsradius: 12 Meter'
   },
   {
     id: 'RIESS-601',
@@ -80,13 +68,13 @@ const DEFAULT_AKTIONEN = [
   },
   {
     id: 'AKT-2',
-    title: 'Miele Jubiläums-Cashback Aktion',
+    title: 'Rowenta & Krups Elektro-Aktionswochen',
     type: 'angebot',
     date: 'Gültig bis 15. September 2026',
     active: true,
-    img: 'assets/products/miele_c3.jpg',
-    desc: 'Beim Kauf eines Miele Complete C3 Bodenstaubsaugers schenken wir Ihnen 50 € Direkt-Gutschrift an der Kassa in Mattsee.',
-    badge: '50 € Direkt-Gutschrift vor Ort'
+    img: 'assets/stock/sortiment-elektro.jpg',
+    desc: 'Beim Kauf eines ausgewählten Rowenta oder Krups Elektrogeräts schenken wir Ihnen 30 € Direkt-Gutschrift an der Kassa in Mattsee.',
+    badge: '30 € Direkt-Gutschrift vor Ort'
   },
   {
     id: 'AKT-4',
@@ -106,7 +94,13 @@ function getShopProducts() {
     localStorage.setItem('loegl_products', JSON.stringify(DEFAULT_PRODUCTS));
     return DEFAULT_PRODUCTS;
   }
-  try { return JSON.parse(data); } catch (e) { return DEFAULT_PRODUCTS; }
+  try {
+    let prods = JSON.parse(data);
+    // Purge removed partner brands
+    prods = prods.filter(p => !['bosch', 'miele', 'alfi'].includes((p.brand || '').toLowerCase()));
+    localStorage.setItem('loegl_products', JSON.stringify(prods));
+    return prods;
+  } catch (e) { return DEFAULT_PRODUCTS; }
 }
 
 function getShopAktionen() {
@@ -115,7 +109,12 @@ function getShopAktionen() {
     localStorage.setItem('loegl_aktionen', JSON.stringify(DEFAULT_AKTIONEN));
     return DEFAULT_AKTIONEN;
   }
-  try { return JSON.parse(data); } catch (e) { return DEFAULT_AKTIONEN; }
+  try {
+    let akt = JSON.parse(data);
+    akt = akt.filter(a => !['miele', 'bosch', 'alfi'].some(b => (a.title || '').toLowerCase().includes(b)));
+    localStorage.setItem('loegl_aktionen', JSON.stringify(akt));
+    return akt;
+  } catch (e) { return DEFAULT_AKTIONEN; }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -219,9 +218,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const nav = document.getElementById('nav');
 
   if (burger && nav) {
+    // Inject mobile nav contact footer card
+    if (!nav.querySelector('.nav-mobile-footer')) {
+      const footerBox = document.createElement('div');
+      footerBox.className = 'nav-mobile-footer';
+      footerBox.style.cssText = 'margin-top: auto; padding: 1.2rem 1.4rem; background: #121110; color: #fff; border-radius: 14px; display: flex; flex-direction: column; gap: 0.7rem; text-align: left; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.1);';
+      footerBox.innerHTML = `
+        <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light);">Direktkontakt Mattsee</span>
+        <a href="tel:0043621720286" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; font-weight: 600; color: #fff; text-decoration: none;">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span>+43 6217 20286</span>
+        </a>
+        <a href="mailto:loegl@sbg.at" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; font-weight: 600; color: #fff; text-decoration: none;">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+          <span>loegl@sbg.at</span>
+        </a>
+      `;
+      nav.appendChild(footerBox);
+    }
+
     burger.addEventListener('click', () => {
       const isOpen = nav.classList.toggle('is-open');
       burger.classList.toggle('is-open', isOpen);
+      document.body.classList.toggle('menu-open', isOpen);
       burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
@@ -229,8 +248,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!nav.contains(e.target) && !burger.contains(e.target) && nav.classList.contains('is-open')) {
         nav.classList.remove('is-open');
         burger.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
         burger.setAttribute('aria-expanded', 'false');
       }
+    });
+
+    // Close nav on nav link click
+    nav.querySelectorAll('.nav__link').forEach(link => {
+      link.addEventListener('click', () => {
+        nav.classList.remove('is-open');
+        burger.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
+        burger.setAttribute('aria-expanded', 'false');
+      });
     });
   }
 
