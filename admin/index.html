@@ -68,7 +68,7 @@
 
     <!-- ADMIN HEADER -->
     <header style="background: var(--paper-2); border-bottom: 1px solid var(--line); padding: 1.2rem 0; box-shadow: var(--shadow-sm);">
-      <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+      <div class="wrap admin-header-wrap" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
         <div style="display: flex; align-items: center; gap: 1.4rem;">
           <a href="../index.html" aria-label="Zur Startseite">
             <img src="../assets/loegl.jpg" alt="Lögl Logo" style="height: 48px; width: auto; mix-blend-mode: multiply;" />
@@ -79,7 +79,7 @@
           </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="admin-header-user" style="display: flex; align-items: center; gap: 1.5rem;">
           <div style="display: flex; align-items: center; gap: 0.8rem; background: var(--paper-3); padding: 0.5rem 1.1rem; border-radius: 30px; border: 1px solid var(--line);">
             <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--gold-dark); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 0.85rem;">DL</div>
             <div style="text-align: left; font-size: 0.82rem;">
@@ -99,7 +99,7 @@
     <main class="wrap" style="padding: 2.5rem 0 4rem; flex: 1;">
       
       <!-- NAVIGATION TABS BETWEEN PRODUCTS & AKTIONEN -->
-      <div style="display: flex; gap: 1rem; margin-bottom: 2.2rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem; flex-wrap: wrap;">
+      <div class="admin-nav-tabs" style="display: flex; gap: 1rem; margin-bottom: 2.2rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem; flex-wrap: wrap;">
         <button class="admin-tab-btn is-active" id="navTabProducts">
           <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
           <span>Katalog &amp; Produkte</span>
@@ -232,10 +232,10 @@
           <input type="text" id="pmTitle" class="admin-input-luxury" required placeholder="z. B. WMF Gourmet Plus Topf-Set" />
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+        <div class="admin-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
           <div>
             <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Hersteller / Marke *</label>
-            <input type="text" id="pmBrand" class="admin-input-luxury" required placeholder="WMF, Miele, Bosch..." />
+            <input type="text" id="pmBrand" class="admin-input-luxury" required placeholder="WMF, Riess, Kaiser..." />
           </div>
           <div>
             <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Haupt-Kategorie *</label>
@@ -247,7 +247,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+        <div class="admin-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
           <div>
             <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Preis (€ UVP) *</label>
             <input type="text" id="pmPrice" class="admin-input-luxury" required placeholder="249,00 €" />
@@ -260,7 +260,7 @@
 
         <div style="margin-bottom: 1.4rem;">
           <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Produktbild (Upload &amp; Vorschau) *</label>
-          <div style="display: grid; grid-template-columns: 1fr 140px; gap: 1.2rem;">
+          <div class="admin-grid-upload" style="display: grid; grid-template-columns: 1fr 140px; gap: 1.2rem;">
             <div>
               <div class="file-dropzone">
                 <input type="file" id="pmFileInput" accept="image/*" />
@@ -305,7 +305,7 @@
           <input type="text" id="amTitle" class="admin-input-luxury" required placeholder="z. B. WMF Alt-gegen-Neu Eintauschaktion" />
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+        <div class="admin-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
           <div>
             <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Aktions-Typ *</label>
             <select id="amType" class="admin-input-luxury">

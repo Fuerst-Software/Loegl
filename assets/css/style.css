@@ -530,7 +530,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 @media (max-width: 900px) {
-  .wrap { padding: 0 20px; }
+  .wrap { padding: 0 16px; }
   
   /* Topbar Mobile Absolute Clean Single-Row */
   .topbar { background: #121110; border-bottom: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; }
@@ -553,7 +553,7 @@ input:checked + .slider:before { transform: translateX(20px); }
   .header__inner { height: 70px; }
   .brand__logo { height: 40px; }
 
-  /* Mobile Navigation Menu Card Dropdown */
+  /* Mobile Navigation Menu Clean Card Dropdown (Zero Extra Contact Boxes) */
   .burger { display: flex !important; align-items: center; justify-content: center; z-index: 130; width: 44px; height: 44px; padding: 10px 8px; border-radius: 8px; background: rgba(22, 21, 19, 0.04); }
   .burger span { position: absolute; left: 8px; right: 8px; height: 2.5px; background: var(--ink); border-radius: 2px; transition: transform 0.4s var(--ease), opacity 0.3s; }
   .burger span:nth-child(1) { top: 12px; }
@@ -595,17 +595,18 @@ input:checked + .slider:before { transform: translateX(20px); }
     justify-content: space-between !important;
     font-size: 1.15rem !important;
     font-weight: 700 !important;
-    padding: 0.95rem 1.2rem !important;
-    border-radius: 12px !important;
+    padding: 1.05rem 1.3rem !important;
+    border-radius: 14px !important;
     color: var(--ink) !important;
     background: var(--paper-2) !important;
     border: 1px solid var(--line) !important;
     letter-spacing: 0.04em !important;
     transition: all 0.25s var(--ease) !important;
+    box-shadow: var(--shadow-sm) !important;
   }
   .nav__link::after {
     content: "→" !important;
-    font-size: 1.1rem !important;
+    font-size: 1.15rem !important;
     color: var(--gold-dark) !important;
     width: auto !important; height: auto !important;
     position: static !important; background: none !important;
@@ -619,6 +620,12 @@ input:checked + .slider:before { transform: translateX(20px); }
   .burger.is-open span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
   .burger.is-open span:nth-child(2) { opacity: 0; }
   .burger.is-open span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+
+  /* Admin Header & Tabs Mobile */
+  .admin-header-wrap { flex-direction: column !important; align-items: flex-start !important; gap: 1rem !important; }
+  .admin-header-user { width: 100% !important; justify-content: space-between !important; }
+  .admin-nav-tabs { flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 0.5rem !important; -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important; }
+  .admin-nav-tabs::-webkit-scrollbar { display: none; }
 
   .hero__grid { grid-template-columns: 1fr; gap: 2.5rem; min-height: auto; }
   .hero { padding: 2.5rem 0 4rem; }
@@ -689,10 +696,11 @@ input:checked + .slider:before { transform: translateX(20px); }
   .cat-grid, #productGrid { grid-template-columns: 1fr !important; gap: 1.2rem; }
   .gallery__grid { grid-template-columns: 1fr; }
 
-  .prod-card--compact .prod-card__img { max-height: 170px !important; }
+  .prod-card--compact { border-radius: 14px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.05) !important; }
+  .prod-card--compact .prod-card__img { max-height: 160px !important; padding: 0.8rem !important; }
   .prod-card--compact .prod-card__body { padding: 1.1rem !important; }
-  .prod-card--compact .prod-card__title { font-size: 1.12rem !important; }
-  .prod-card--compact .prod-card__desc { font-size: 0.84rem !important; margin-bottom: 0.8rem !important; }
+  .prod-card--compact .prod-card__title { font-size: 1.12rem !important; line-height: 1.35 !important; margin-bottom: 0.4rem !important; }
+  .prod-card--compact .prod-card__desc { font-size: 0.84rem !important; line-height: 1.5 !important; margin-bottom: 0.8rem !important; word-break: break-word !important; }
 
   /* Horizontal scrollable filter tabs on mobile */
   .sortiment-tabs {
@@ -717,6 +725,12 @@ input:checked + .slider:before { transform: translateX(20px); }
     display: grid !important; place-items: center !important;
     background: var(--paper-3) !important; border-radius: 50% !important;
     font-size: 1.3rem !important; border: 1px solid var(--line) !important;
+  }
+
+  /* Admin Modal Form Grids */
+  .admin-grid-2col, .admin-grid-upload {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
   }
 
   /* Info Modal Responsive Grid */

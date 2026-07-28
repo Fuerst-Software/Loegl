@@ -218,25 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const nav = document.getElementById('nav');
 
   if (burger && nav) {
-    // Inject mobile nav contact footer card
-    if (!nav.querySelector('.nav-mobile-footer')) {
-      const footerBox = document.createElement('div');
-      footerBox.className = 'nav-mobile-footer';
-      footerBox.style.cssText = 'margin-top: auto; padding: 1.2rem 1.4rem; background: #121110; color: #fff; border-radius: 14px; display: flex; flex-direction: column; gap: 0.7rem; text-align: left; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.1);';
-      footerBox.innerHTML = `
-        <span style="font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light);">Direktkontakt Mattsee</span>
-        <a href="tel:0043621720286" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; font-weight: 600; color: #fff; text-decoration: none;">
-          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-          <span>+43 6217 20286</span>
-        </a>
-        <a href="mailto:loegl@sbg.at" style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.92rem; font-weight: 600; color: #fff; text-decoration: none;">
-          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
-          <span>loegl@sbg.at</span>
-        </a>
-      `;
-      nav.appendChild(footerBox);
-    }
-
     burger.addEventListener('click', () => {
       const isOpen = nav.classList.toggle('is-open');
       burger.classList.toggle('is-open', isOpen);
