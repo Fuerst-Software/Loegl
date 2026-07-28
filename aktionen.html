@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aktuelle Aktionen · Lögl Mattsee</title>
+  <meta name="description" content="Aktuelle Angebote, Eintausch-Rabatte & saisonale Highlights bei Lögl Haus- & Küchengeräte in Mattsee." />
+  <meta name="theme-color" content="#161513" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <div class="wrap topbar__inner">
+      <span class="topbar__item">
+        <span class="status-badge status-badge--open" id="liveStatusBadge">
+          <span class="status-badge__dot"></span>
+          <span>Wird geladen...</span>
+        </span>
+      </span>
+      <span class="topbar__item topbar__text-hide-mobile">Familienbetrieb seit 1914 · 4. Generation</span>
+      <div class="topbar__spacer"></div>
+      <a class="topbar__item topbar__link" href="tel:0043621720286">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        <span>+43 6217 20286</span>
+      </a>
+      <a class="topbar__item topbar__link topbar__text-hide-mobile" href="mailto:loegl@sbg.at">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+        <span>loegl@sbg.at</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ HEADER ============ -->
+  <header class="header" id="header">
+    <div class="wrap header__inner">
+      <a class="brand" href="index.html" aria-label="Lögl – zur Startseite">
+        <img class="brand__logo" src="assets/loegl.jpg" alt="Lögl – Tisch, Küche & Haushalt, seit 1914" width="776" height="347" />
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Hauptnavigation">
+        <a href="index.html" class="nav__link">HOME</a>
+        <a href="click-and-collect.html" class="nav__link">CLICK &amp; COLLECT</a>
+        <a href="aktionen.html" class="nav__link is-active">AKTIONEN</a>
+        <a href="news.html" class="nav__link">NEWS</a>
+        <a href="kontakt.html" class="nav__link">KONTAKT</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ ULTRA-COMPACT SUBHERO ============ -->
+    <section class="subhero">
+      <div class="wrap subhero__inner reveal">
+        <div class="subhero__breadcrumb">
+          <a href="index.html">Startseite</a> <span>/</span> <span>Aktionen</span>
+        </div>
+        <h1 class="subhero__title">Aktuelle <em>Aktionen.</em></h1>
+        <p class="subhero__lead">
+          Exklusive Rabattaktionen, Eintauschprämien sowie saisonale Angebote bei Lögl in Mattsee.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ MAIN AKTIONEN SHOWCASE ============ -->
+    <section style="padding: 1.5rem 0 4rem; background: var(--paper);">
+      <div class="wrap">
+        
+        <!-- FILTER CHIPS -->
+        <div class="sortiment-tabs reveal" id="aktionenFilters" style="margin-bottom: 1.8rem;">
+          <button class="sortiment-tab is-active" data-filter="all">Alle Aktionen</button>
+          <button class="sortiment-tab" data-filter="angebot">Sonderangebote &amp; Rabatte</button>
+          <button class="sortiment-tab" data-filter="saisonal">Saisonale Highlights</button>
+        </div>
+
+        <!-- DYNAMIC AKTIONEN GRID -->
+        <div id="aktionenGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+          <!-- Dynamically rendered via main.js with flush image banners -->
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div class="footer__brand">
+        <img class="footer__logo" src="assets/loegl.jpg" alt="Lögl – Tisch, Küche & Haushalt" width="776" height="347" />
+        <p>Alles zum Kochen · Backen · Braten · Servieren</p>
+        <p class="footer__since">Familienbetrieb seit 1914 · 4. Generation in Mattsee</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer Navigation Subpages">
+        <h4>Unterseiten</h4>
+        <a href="index.html">Home</a>
+        <a href="click-and-collect.html">Click &amp; Collect</a>
+        <a href="aktionen.html">Aktionen</a>
+        <a href="news.html">News &amp; Presse</a>
+        <a href="kontakt.html">Kontakt &amp; Anfahrt</a>
+      </nav>
+      <nav class="footer__nav" aria-label="Footer Service">
+        <h4>Service &amp; Kontakt</h4>
+        <a href="kontakt.html">Kontakt &amp; Anfahrt</a>
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+      </nav>
+      <div class="footer__nav">
+        <h4>Kontakt</h4>
+        <a href="tel:0043621720286">+43 6217 20286</a>
+        <a href="mailto:loegl@sbg.at">loegl@sbg.at</a>
+        <span>Passauer Straße 6<br />5163 Mattsee am See</span>
+      </div>
+    </div>
+    <div class="wrap footer__bottom">
+      <span>© <span id="year">2026</span> Lögl Haus- &amp; Küchengeräte · Alle Rechte vorbehalten</span>
+      <div class="footer__legal">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="totop" id="toTop" aria-label="Nach oben scrollen">↑</a>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

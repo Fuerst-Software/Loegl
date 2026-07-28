@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Click &amp; Collect Shop · Lögl Mattsee</title>
+  <meta name="description" content="Online reservieren, bequem im Fachgeschäft in Mattsee abholen. WMF, Miele, Bosch, Riess Emaille & Kaiser Backformen vorrätig." />
+  <meta name="theme-color" content="#161513" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <div class="wrap topbar__inner">
+      <span class="topbar__item">
+        <span class="status-badge status-badge--open" id="liveStatusBadge">
+          <span class="status-badge__dot"></span>
+          <span>Wird geladen...</span>
+        </span>
+      </span>
+      <span class="topbar__item topbar__text-hide-mobile">Familienbetrieb seit 1914 · 4. Generation</span>
+      <div class="topbar__spacer"></div>
+      <a class="topbar__item topbar__link" href="tel:0043621720286">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        <span>+43 6217 20286</span>
+      </a>
+      <a class="topbar__item topbar__link topbar__text-hide-mobile" href="mailto:loegl@sbg.at">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+        <span>loegl@sbg.at</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ HEADER ============ -->
+  <header class="header" id="header">
+    <div class="wrap header__inner">
+      <a class="brand" href="index.html" aria-label="Lögl – zur Startseite">
+        <img class="brand__logo" src="assets/loegl.jpg" alt="Lögl – Tisch, Küche & Haushalt, seit 1914" width="776" height="347" />
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Hauptnavigation">
+        <a href="index.html" class="nav__link">HOME</a>
+        <a href="click-and-collect.html" class="nav__link is-active">CLICK &amp; COLLECT</a>
+        <a href="aktionen.html" class="nav__link">AKTIONEN</a>
+        <a href="news.html" class="nav__link">NEWS</a>
+        <a href="kontakt.html" class="nav__link">KONTAKT</a>
+      </nav>
+
+      <button class="burger" id="burger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ SUBPAGE HERO ============ -->
+    <section class="subhero">
+      <div class="wrap subhero__inner reveal">
+        <div class="subhero__breadcrumb">
+          <a href="index.html">Startseite</a> <span>/</span> <span>Click &amp; Collect Shop</span>
+        </div>
+        <h1 class="subhero__title">Online reservieren, <em>im Laden abholen.</em></h1>
+        <p class="subhero__lead">
+          Reservieren Sie ausgewählte Markenartikel unserer Partner-Hersteller in wenigen Sekunden online ohne Kaufzwang. Wir hinterlegen die Ware in Mattsee für Sie. Sie bezahlen entspannt bei der Abholung im Geschäft (Bar oder Karte).
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ VORTEILE BANNER ============ -->
+    <section style="background: var(--paper-2); border-bottom: 1px solid var(--line); padding: 1.8rem 0;">
+      <div class="wrap vorteile-grid">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gold-light); display: grid; place-items: center; color: var(--gold-dark); flex-shrink: 0;">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div style="text-align: left;">
+            <strong style="display: block; font-size: 0.95rem; color: var(--ink);">Garantierte Hinterlegung</strong>
+            <span style="font-size: 0.82rem; color: var(--ink-soft);">Bis zu 3 Werktage für Sie reserviert</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gold-light); display: grid; place-items: center; color: var(--gold-dark); flex-shrink: 0;">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          </div>
+          <div style="text-align: left;">
+            <strong style="display: block; font-size: 0.95rem; color: var(--ink);">Zahlung erst im Laden</strong>
+            <span style="font-size: 0.82rem; color: var(--ink-soft);">Barzahlung &amp; Kartenzahlung vor Ort</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--gold-light); display: grid; place-items: center; color: var(--gold-dark); flex-shrink: 0;">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          </div>
+          <div style="text-align: left;">
+            <strong style="display: block; font-size: 0.95rem; color: var(--ink);">Persönliche Beratung</strong>
+            <span style="font-size: 0.82rem; color: var(--ink-soft);">Inklusive Produktvorführung in Mattsee</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ KATALOG SHOWCASE ============ -->
+    <section class="sortiment" style="padding: 4rem 0;">
+      <div class="wrap">
+        <div class="section-head reveal">
+          <span class="eyebrow eyebrow--dark">Aktuell Vorrätig</span>
+          <h2 class="section-title">Sofort reservierbare <em>Artikel.</em></h2>
+        </div>
+
+        <!-- FILTER CHIPS -->
+        <div class="sortiment-tabs reveal" id="catalogFilters">
+          <button class="sortiment-tab is-active" data-filter="all">Alle Artikel</button>
+          <button class="sortiment-tab" data-filter="haushalt">Kochgeschirr</button>
+          <button class="sortiment-tab" data-filter="elektro">Elektrogeräte</button>
+          <button class="sortiment-tab" data-filter="backen">Backwelt</button>
+          <button class="sortiment-tab" data-filter="wmf">WMF</button>
+          <button class="sortiment-tab" data-filter="bosch">Bosch</button>
+          <button class="sortiment-tab" data-filter="miele">Miele</button>
+          <button class="sortiment-tab" data-filter="riess">Riess</button>
+        </div>
+
+        <!-- PRODUCT CATALOG GRID (DYNAMICALLY RENDERED VIA MAIN.JS) -->
+        <div class="cat-grid" id="productGrid" style="grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+          <!-- Rendered via main.js -->
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ PRODUCT DETAIL SHEET MODAL ("MEHR INFOS") ============ -->
+  <div class="lightbox" id="productInfoModal" aria-hidden="true" role="dialog">
+    <div class="lightbox__content" style="background: var(--paper-2); color: var(--ink); border-radius: 20px; padding: 2.5rem; max-width: 720px; position: relative;">
+      <button class="lightbox__close" id="productInfoClose" aria-label="Schließen" style="color: var(--ink); font-size: 1.8rem; position: absolute; top: 1.2rem; right: 1.5rem; background: none; border: 0; cursor: pointer;">✕</button>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; align-items: start;">
+        <div style="border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--paper);">
+          <img id="infoModalImg" src="" alt="" style="width: 100%; aspect-ratio: 1 / 1; object-fit: contain; padding: 1.2rem;" />
+        </div>
+        <div>
+          <span id="infoModalBrand" class="prod-card__tag">BRAND</span>
+          <h2 id="infoModalTitle" style="font-family: var(--serif); font-size: 1.8rem; margin: 0.4rem 0 0.8rem; color: var(--ink);">Product Title</h2>
+          
+          <div style="display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1.2rem;">
+            <span style="font-size: 0.8rem; color: var(--ink-soft);">UVP Preis:</span>
+            <strong id="infoModalPrice" style="font-family: var(--serif); font-size: 1.8rem; color: var(--ink);">0,00 €</strong>
+            <span style="font-size: 0.72rem; font-weight: 700; color: #2e7d32; background: rgba(46, 125, 50, 0.1); padding: 0.2em 0.6em; border-radius: 4px; margin-left: auto;">● Auf Lager</span>
+          </div>
+
+          <p id="infoModalDesc" style="font-size: 0.95rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.2rem;"></p>
+          
+          <div style="background: var(--paper-3); padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--ink-2); margin-bottom: 1.5rem; border-left: 3px solid var(--gold-dark);">
+            <strong>Technische Details &amp; Ausstattung:</strong>
+            <p id="infoModalSpecs" style="margin: 0.4rem 0 0; color: var(--ink-soft); font-size: 0.84rem; line-height: 1.5;"></p>
+          </div>
+
+          <button type="button" class="btn btn--gold btn--wide" id="infoModalReserveBtn">
+            <span>Diesen Artikel jetzt reservieren</span>
+            <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CLICK & COLLECT RESERVIERUNGS MODAL ============ -->
+  <div class="lightbox" id="ccModal" aria-hidden="true" role="dialog" aria-labelledby="ccModalTitle">
+    <div class="lightbox__content" style="background: var(--paper-2); color: var(--ink); border-radius: 20px; padding: 2.5rem; max-width: 620px; position: relative;">
+      <button class="lightbox__close" id="ccModalClose" aria-label="Schließen" style="color: var(--ink); font-size: 1.8rem; position: absolute; top: 1.2rem; right: 1.5rem; background: none; border: 0; cursor: pointer;">✕</button>
+      
+      <!-- MODAL FORM STEP 1 -->
+      <div id="ccStepForm">
+        <span class="eyebrow eyebrow--dark" style="margin-bottom: 0.4rem;">Click &amp; Collect Reservierung</span>
+        <h2 id="ccModalTitle" style="font-family: var(--serif); font-size: 1.8rem; margin: 0 0 1.2rem; color: var(--ink);">Artikel im Laden hinterlegen</h2>
+
+        <div style="display: flex; gap: 1.2rem; background: var(--paper); padding: 1rem; border-radius: 12px; border: 1px solid var(--line); margin-bottom: 1.5rem; align-items: center;">
+          <img id="ccProductImg" src="" alt="" style="width: 70px; height: 70px; object-fit: contain; background: #fff; padding: 0.3rem; border-radius: 8px; flex-shrink: 0;" />
+          <div>
+            <strong id="ccProductTitle" style="display: block; font-size: 1.05rem; color: var(--ink);">Product Name</strong>
+            <span id="ccProductBrand" style="font-size: 0.82rem; color: var(--gold-dark); font-weight: 700;">Brand</span> · 
+            <strong id="ccProductPrice" style="font-size: 1rem; color: var(--ink);">0,00 €</strong>
+          </div>
+        </div>
+
+        <form id="ccForm">
+          <div class="form__row">
+            <label class="field">
+              <span>Vor- &amp; Nachname *</span>
+              <input type="text" id="ccName" required placeholder="Max Mustermann" />
+            </label>
+            <label class="field">
+              <span>Telefonnummer *</span>
+              <input type="tel" id="ccPhone" required placeholder="+43 664 ..." />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>E-Mail-Adresse *</span>
+            <input type="email" id="ccEmail" required placeholder="name@beispiel.at" />
+          </label>
+
+
+
+          <button type="submit" class="btn btn--gold btn--wide">
+            <span>Jetzt verbindlich reservieren</span>
+            <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- MODAL STEP 2: SUCCESS TICKET -->
+      <div id="ccStepSuccess" style="display: none; text-align: center; padding: 1rem 0;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: #e8f5e9; color: #2e7d32; display: grid; place-items: center; margin: 0 auto 1.2rem;">
+          <svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <span class="eyebrow eyebrow--dark">Reservierung Erfolgreich!</span>
+        <h2 style="font-family: var(--serif); font-size: 2rem; margin: 0 0 0.5rem; color: var(--ink);">Artikel liegt für Sie bereit.</h2>
+        <p style="color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+          Vielen Dank, <strong id="succName">Kunde</strong>! Ihr Artikel wurde soeben für Sie im Fachgeschäft in Mattsee hinterlegt.
+        </p>
+
+        <div style="background: var(--paper); border: 2px dashed var(--line-gold); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: left;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem;">
+            <span>Reservierungs-Code</span>
+            <strong id="succCode" style="color: var(--gold-dark); font-family: monospace; font-size: 1.1rem;">LÖGL-CC-94821</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem;">
+            <span>Reservierter Artikel</span>
+            <strong id="succTitle" style="color: var(--ink);">Artikel Name</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem;">
+            <span>Abholort</span>
+            <strong style="color: var(--ink);">Passauer Straße 6, 5163 Mattsee</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft);">
+            <span>Bezahlung vor Ort</span>
+            <strong style="color: #2e7d32;">Bar- oder Kartenzahlung im Laden</strong>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn--primary" id="ccFinishBtn">
+          <span>Verstanden &amp; Schließen</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div class="footer__brand">
+        <img class="footer__logo" src="assets/loegl.jpg" alt="Lögl – Tisch, Küche & Haushalt" width="776" height="347" />
+        <p>Alles zum Kochen · Backen · Braten · Servieren</p>
+        <p class="footer__since">Familienbetrieb seit 1914 · 4. Generation in Mattsee</p>
+      </div>
+      <nav class="footer__nav" aria-label="Footer Navigation Subpages">
+        <h4>Unterseiten</h4>
+        <a href="index.html">Home</a>
+        <a href="click-and-collect.html">Click &amp; Collect</a>
+        <a href="aktionen.html">Aktionen</a>
+        <a href="news.html">News &amp; Presse</a>
+        <a href="kontakt.html">Kontakt &amp; Anfahrt</a>
+      </nav>
+      <nav class="footer__nav" aria-label="Footer Service">
+        <h4>Service &amp; Kontakt</h4>
+        <a href="kontakt.html">Kontakt &amp; Anfahrt</a>
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+      </nav>
+      <div class="footer__nav">
+        <h4>Kontakt</h4>
+        <a href="tel:0043621720286">+43 6217 20286</a>
+        <a href="mailto:loegl@sbg.at">loegl@sbg.at</a>
+        <span>Passauer Straße 6<br />5163 Mattsee am See</span>
+      </div>
+    </div>
+    <div class="wrap footer__bottom">
+      <span>© <span id="year">2026</span> Lögl Haus- &amp; Küchengeräte · Alle Rechte vorbehalten</span>
+      <div class="footer__legal">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#top" class="totop" id="toTop" aria-label="Nach oben scrollen">↑</a>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

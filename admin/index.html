@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fürst Systems · Inhaber Dashboard</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+  <style>
+    .admin-tab-btn {
+      padding: 0.75em 1.5em; border-radius: 30px; font-weight: 700; font-size: 0.88rem;
+      background: var(--paper-3); border: 1px solid var(--line); color: var(--ink-soft);
+      cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.55rem;
+    }
+    .admin-tab-btn:hover { border-color: var(--line-gold); color: var(--gold-dark); background: #fff; }
+    .admin-tab-btn.is-active { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: var(--shadow-sm); }
+  </style>
+</head>
+<body class="admin-luxury">
+
+  <!-- ============ LOGIN VIEW ============ -->
+  <div id="loginView" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; background: linear-gradient(180deg, #f5f1e8 0%, var(--paper) 100%);">
+    <div class="admin-card-luxury" style="max-width: 450px; width: 100%; text-align: center; border-color: var(--line-gold); box-shadow: var(--shadow-lg);">
+      <img src="../assets/loegl.jpg" alt="Lögl Logo" style="height: 54px; width: auto; mix-blend-mode: multiply; margin: 0 auto 1.2rem;" />
+      <div style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+        <img src="../assets/fuerst_systems_logo.png" alt="Fürst Systems" style="height: 22px; width: 22px; border-radius: 5px; object-fit: contain; display: inline-block; vertical-align: middle; flex-shrink: 0;" />
+        <span class="eyebrow eyebrow--dark" style="margin-bottom: 0;">Fürst Systems</span>
+      </div>
+      <h1 style="font-family: var(--serif); font-size: 2.2rem; font-weight: 500; margin: 0 0 0.4rem; color: var(--ink);">Inhaber Admin Login</h1>
+      <p style="color: var(--ink-soft); font-size: 0.88rem; margin: 0 0 1.8rem; line-height: 1.6;">
+        Management Dashboard · Lögl Mattsee<br />
+        <span style="display: inline-block; margin-top: 0.6rem; font-size: 0.78rem; font-weight: 700; color: var(--gold-dark); background: var(--gold-light); padding: 0.35em 0.85em; border-radius: 20px;">Demo-Zugang: admin / admin</span>
+      </p>
+
+      <form id="adminLoginForm">
+        <div style="margin-bottom: 1.2rem; text-align: left;">
+          <label style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Benutzername</label>
+          <input type="text" id="loginUser" class="admin-input-luxury" required placeholder="admin" autocomplete="username" />
+        </div>
+        <div style="margin-bottom: 1.8rem; text-align: left;">
+          <label style="font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Passwort</label>
+          <input type="password" id="loginPass" class="admin-input-luxury" required placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn--primary btn--wide">
+          <span>Im Fürst Systems Dashboard anmelden</span>
+          <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+        <p id="loginError" style="color: #c62828; font-size: 0.88rem; margin: 1rem 0 0; display: none; font-weight: 600;">Ungültige Anmeldedaten. (Demo: admin / admin)</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MAIN DASHBOARD VIEW ============ -->
+  <div id="dashboardView" style="display: none; flex-direction: column; min-height: 100vh;">
+
+    <!-- BRAND BAR -->
+    <div style="background: #121110; color: #fff; padding: 0.6rem 0; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <div class="wrap" style="display: flex; justify-content: flex-end; align-items: center;">
+        <span style="font-weight: 600; letter-spacing: 0.05em; color: var(--gold-light); display: inline-flex; align-items: center; gap: 0.5rem;">
+          <img src="../assets/fuerst_systems_logo.png" alt="Fürst Systems" style="height: 18px; width: 18px; border-radius: 4px; object-fit: contain; display: inline-block; vertical-align: middle; flex-shrink: 0;" />
+          <span style="line-height: 1; vertical-align: middle;">Fürst Systems · Inhaber Dashboard</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- ADMIN HEADER -->
+    <header style="background: var(--paper-2); border-bottom: 1px solid var(--line); padding: 1.2rem 0; box-shadow: var(--shadow-sm);">
+      <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1.4rem;">
+          <a href="../index.html" aria-label="Zur Startseite">
+            <img src="../assets/loegl.jpg" alt="Lögl Logo" style="height: 48px; width: auto; mix-blend-mode: multiply;" />
+          </a>
+          <div style="border-left: 1px solid var(--line); padding-left: 1.4rem;">
+            <span class="eyebrow" style="margin-bottom: 0.1rem; font-size: 0.7rem; color: var(--gold-dark);">Management System</span>
+            <strong style="display: block; font-family: var(--serif); font-size: 1.5rem; color: var(--ink); line-height: 1.1;">Produkt- &amp; Aktionsverwaltung</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.8rem; background: var(--paper-3); padding: 0.5rem 1.1rem; border-radius: 30px; border: 1px solid var(--line);">
+            <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--gold-dark); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 0.85rem;">DL</div>
+            <div style="text-align: left; font-size: 0.82rem;">
+              <strong style="display: block; color: var(--ink);">Dagmar &amp; Michael</strong>
+              <span style="color: var(--ink-soft);">Geschäftsleitung (4. Gen)</span>
+            </div>
+          </div>
+
+          <button id="logoutBtn" class="btn btn--ghost" style="padding: 0.6em 1.1em; font-size: 0.82rem; color: #c62828; border-color: rgba(198,40,40,0.25);">
+            <span>Abmelden</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="wrap" style="padding: 2.5rem 0 4rem; flex: 1;">
+      
+      <!-- NAVIGATION TABS BETWEEN PRODUCTS & AKTIONEN -->
+      <div style="display: flex; gap: 1rem; margin-bottom: 2.2rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem; flex-wrap: wrap;">
+        <button class="admin-tab-btn is-active" id="navTabProducts">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          <span>Katalog &amp; Produkte</span>
+        </button>
+        <button class="admin-tab-btn" id="navTabAktionen">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+          <span>Aktuelle Aktionen</span>
+        </button>
+      </div>
+
+      <!-- ================= SECTION 1: PRODUCTS TAB ================= -->
+      <div id="tabProductsView">
+        <div style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-weight: 500; font-size: clamp(2rem, 3.5vw, 2.6rem); margin: 0 0 0.4rem; color: var(--ink);">
+            Katalog &amp; <em>Lagerbestand.</em>
+          </h1>
+          <p style="color: var(--ink-soft); font-size: 0.98rem; margin: 0;">
+            Verwalten Sie hier alle vorrätigen Artikel für Click &amp; Collect.
+          </p>
+        </div>
+
+        <div class="admin-kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.4rem; margin-bottom: 2.2rem;">
+          <div class="admin-card-luxury" style="padding: 1.4rem;">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.08em;">Produkte Gesamt</span>
+            <strong id="kpiTotal" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: var(--ink); margin-top: 0.2rem;">0</strong>
+          </div>
+          <div class="admin-card-luxury" style="padding: 1.4rem; border-color: rgba(46, 125, 50, 0.3);">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #2e7d32; letter-spacing: 0.08em;">Aktiv im Shop</span>
+            <strong id="kpiActive" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: #2e7d32; margin-top: 0.2rem;">0</strong>
+          </div>
+          <div class="admin-card-luxury" style="padding: 1.4rem; border-color: rgba(196, 154, 69, 0.3);">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); letter-spacing: 0.08em;">Pausiert</span>
+            <strong id="kpiInactive" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: var(--gold-dark); margin-top: 0.2rem;">0</strong>
+          </div>
+          <div class="admin-card-luxury" style="padding: 1.4rem;">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.08em;">Offene Reservierungen</span>
+            <strong style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: var(--ink); margin-top: 0.2rem;">3 Stk.</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--paper-2); padding: 1.1rem 1.5rem; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+          <input type="text" id="adminSearch" class="admin-input-luxury" placeholder="Produkt oder Marke suchen..." style="max-width: 440px;" />
+          <button id="openAddModalBtn" class="btn btn--gold">
+            <span>+ Neues Produkt anlegen</span>
+          </button>
+        </div>
+
+        <div class="admin-card-luxury admin-table-container" style="padding: 0;">
+          <table class="admin-table-luxury">
+            <thead>
+              <tr>
+                <th>Produkt &amp; Vorschau</th>
+                <th>Marke / Kategorie</th>
+                <th>UVP Preis</th>
+                <th>Lagerbestand</th>
+                <th>Shop-Status</th>
+                <th style="text-align: right;">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= SECTION 2: AKTIONEN TAB ================= -->
+      <div id="tabAktionenView" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-weight: 500; font-size: clamp(2rem, 3.5vw, 2.6rem); margin: 0 0 0.4rem; color: var(--ink);">
+            Aktions-<em>Verwaltung.</em>
+          </h1>
+          <p style="color: var(--ink-soft); font-size: 0.98rem; margin: 0;">
+            Erstellen und steuern Sie Rabattaktionen, Eintauschprämien und Angebote für die Website.
+          </p>
+        </div>
+
+        <div class="admin-kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.4rem; margin-bottom: 2.2rem;">
+          <div class="admin-card-luxury" style="padding: 1.4rem;">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.08em;">Aktionen Gesamt</span>
+            <strong id="kpiAktionenTotal" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: var(--ink); margin-top: 0.2rem;">0</strong>
+          </div>
+          <div class="admin-card-luxury" style="padding: 1.4rem; border-color: rgba(46, 125, 50, 0.3);">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #2e7d32; letter-spacing: 0.08em;">Aktiv im Shop</span>
+            <strong id="kpiAktionenActive" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: #2e7d32; margin-top: 0.2rem;">0</strong>
+          </div>
+          <div class="admin-card-luxury" style="padding: 1.4rem; border-color: rgba(21, 101, 192, 0.3);">
+            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #1565c0; letter-spacing: 0.08em;">Saisonale Aktionen</span>
+            <strong id="kpiAktionenSaisonal" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: #1565c0; margin-top: 0.2rem;">1</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--paper-2); padding: 1.1rem 1.5rem; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+          <input type="text" id="adminAktionSearch" class="admin-input-luxury" placeholder="Aktion oder Thema suchen..." style="max-width: 440px;" />
+          <button id="openAddAktionModalBtn" class="btn btn--gold">
+            <span>+ Neue Aktion anlegen</span>
+          </button>
+        </div>
+
+        <div class="admin-card-luxury admin-table-container" style="padding: 0;">
+          <table class="admin-table-luxury">
+            <thead>
+              <tr>
+                <th>Aktion &amp; Vorschaubild</th>
+                <th>Typ / Kategorie</th>
+                <th>Gültigkeit / Datum</th>
+                <th>Status im Shop</th>
+                <th style="text-align: right;">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="adminAktionTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ============ MODAL: PRODUCT ADD/EDIT ============ -->
+  <div class="lightbox" id="productModal" aria-hidden="true">
+    <div class="admin-card-luxury" style="max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem;">
+        <h2 id="productModalTitle" style="font-family: var(--serif); font-size: 2rem; font-weight: 500; margin: 0; color: var(--ink);">Neues Produkt anlegen</h2>
+        <button id="productModalClose" style="background: none; border: 0; color: var(--ink); font-size: 1.8rem; cursor: pointer;">✕</button>
+      </div>
+
+      <form id="productForm">
+        <input type="hidden" id="pmId" />
+
+        <div style="margin-bottom: 1.2rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Produktbezeichnung *</label>
+          <input type="text" id="pmTitle" class="admin-input-luxury" required placeholder="z. B. WMF Gourmet Plus Topf-Set" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Hersteller / Marke *</label>
+            <input type="text" id="pmBrand" class="admin-input-luxury" required placeholder="WMF, Miele, Bosch..." />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Haupt-Kategorie *</label>
+            <select id="pmCategory" class="admin-input-luxury">
+              <option value="haushalt">Haushaltswaren &amp; Kochen</option>
+              <option value="elektro">Elektrokleingeräte</option>
+              <option value="backen">Backen &amp; Zubereiten</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Preis (€ UVP) *</label>
+            <input type="text" id="pmPrice" class="admin-input-luxury" required placeholder="249,00 €" />
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Lagerbestand (Stk.) *</label>
+            <input type="number" id="pmStock" class="admin-input-luxury" required min="0" value="5" />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.4rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Produktbild (Upload &amp; Vorschau) *</label>
+          <div style="display: grid; grid-template-columns: 1fr 140px; gap: 1.2rem;">
+            <div>
+              <div class="file-dropzone">
+                <input type="file" id="pmFileInput" accept="image/*" />
+                <strong style="display: block; font-size: 0.88rem; color: var(--ink);">Bilddatei wählen</strong>
+              </div>
+              <input type="text" id="pmImg" class="admin-input-luxury" placeholder="oder Pfad: assets/products/wmf_topfset.jpg" style="margin-top: 0.6rem; font-size: 0.82rem;" />
+            </div>
+            <div style="border: 1px solid var(--line); border-radius: 10px; background: var(--paper); padding: 0.5rem; text-align: center;">
+              <img id="pmImagePreview" src="../assets/products/wmf_topfset.jpg" alt="Vorschau" style="width: 100%; aspect-ratio: 1 / 1; object-fit: contain; background: #fff;" />
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.2rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Beschreibung *</label>
+          <textarea id="pmDesc" class="admin-input-luxury" rows="3" required placeholder="Kurze Beschreibung für den Click &amp; Collect Shop..."></textarea>
+        </div>
+
+        <div style="margin-bottom: 1.8rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Technische Details / Specs</label>
+          <input type="text" id="pmSpecs" class="admin-input-luxury" placeholder="Material, Leistung, Fassungsvermögen..." />
+        </div>
+
+        <button type="submit" class="btn btn--gold btn--wide"><span>Produkt im Shop speichern &amp; aktivieren</span></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MODAL: AKTION ADD/EDIT ============ -->
+  <div class="lightbox" id="aktionModal" aria-hidden="true">
+    <div class="admin-card-luxury" style="max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 1rem;">
+        <h2 id="aktionModalTitle" style="font-family: var(--serif); font-size: 2rem; font-weight: 500; margin: 0; color: var(--ink);">Neue Aktion anlegen</h2>
+        <button id="aktionModalClose" style="background: none; border: 0; color: var(--ink); font-size: 1.8rem; cursor: pointer;">✕</button>
+      </div>
+
+      <form id="aktionForm">
+        <input type="hidden" id="amId" />
+
+        <div style="margin-bottom: 1.2rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Titel der Aktion *</label>
+          <input type="text" id="amTitle" class="admin-input-luxury" required placeholder="z. B. WMF Alt-gegen-Neu Eintauschaktion" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Aktions-Typ *</label>
+            <select id="amType" class="admin-input-luxury">
+              <option value="angebot">Sonderangebot &amp; Rabatt</option>
+              <option value="saisonal">Saisonal &amp; Event</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Gültigkeitszeitraum *</label>
+            <input type="text" id="amDate" class="admin-input-luxury" required placeholder="z. B. Bis 31. August 2026" />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.4rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Aktionsbild (Upload &amp; Vorschau) *</label>
+          <div style="display: grid; grid-template-columns: 1fr 140px; gap: 1.2rem;">
+            <div>
+              <div class="file-dropzone">
+                <input type="file" id="amFileInput" accept="image/*" />
+                <strong style="display: block; font-size: 0.88rem; color: var(--ink);">Bilddatei wählen</strong>
+              </div>
+              <input type="text" id="amImg" class="admin-input-luxury" placeholder="oder Pfad: assets/products/wmf_topfset.jpg" style="margin-top: 0.6rem; font-size: 0.82rem;" />
+            </div>
+            <div style="border: 1px solid var(--line); border-radius: 10px; background: var(--paper); padding: 0.5rem; text-align: center;">
+              <img id="amImagePreview" src="../assets/products/wmf_topfset.jpg" alt="Vorschau" style="width: 100%; aspect-ratio: 1 / 1; object-fit: contain; background: #fff;" />
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.2rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Beschreibung &amp; Details *</label>
+          <textarea id="amDesc" class="admin-input-luxury" rows="3" required placeholder="Ausführliche Aktionsbeschreibung..."></textarea>
+        </div>
+
+        <div style="margin-bottom: 1.8rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Aktions-Bedingungen / Hinweis-Text</label>
+          <input type="text" id="amBadge" class="admin-input-luxury" placeholder="z. B. -20% Rabatt auf UVP | Bei Vorlage im Geschäft" />
+        </div>
+
+        <button type="submit" class="btn btn--gold btn--wide"><span>Aktion im Shop speichern &amp; aktivieren</span></button>
+      </form>
+    </div>
+  </div>
+
+  <script src="../assets/js/admin.js"></script>
+</body>
+</html>
