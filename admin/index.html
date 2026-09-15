@@ -108,6 +108,10 @@
           <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
           <span>Aktuelle Aktionen</span>
         </button>
+        <button class="admin-tab-btn" id="navTabReservations">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <span>Reservierungen</span>
+        </button>
       </div>
 
       <!-- ================= SECTION 1: PRODUCTS TAB ================= -->
@@ -136,7 +140,7 @@
           </div>
           <div class="admin-card-luxury" style="padding: 1.4rem;">
             <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.08em;">Offene Reservierungen</span>
-            <strong style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: var(--ink); margin-top: 0.2rem;">3 Stk.</strong>
+            <strong id="kpiOpenRes" style="display: block; font-family: var(--serif); font-size: 2.4rem; font-weight: 500; color: var(--ink); margin-top: 0.2rem;">–</strong>
           </div>
         </div>
 
@@ -209,6 +213,33 @@
               </tr>
             </thead>
             <tbody id="adminAktionTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= SECTION 3: RESERVATIONS TAB ================= -->
+      <div id="tabReservationsView" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-weight: 500; font-size: clamp(2rem, 3.5vw, 2.6rem); margin: 0 0 0.4rem; color: var(--ink);">
+            Click &amp; Collect <em>Reservierungen.</em>
+          </h1>
+          <p style="color: var(--ink-soft); font-size: 0.98rem; margin: 0;">
+            Alle Kundenreservierungen aus dem Shop. Markieren Sie abgeholte oder stornierte Bestellungen.
+          </p>
+        </div>
+
+        <div class="admin-card-luxury admin-table-container" style="padding: 0;">
+          <table class="admin-table-luxury">
+            <thead>
+              <tr>
+                <th>Abhol-Code / Datum</th>
+                <th>Artikel</th>
+                <th>Kunde &amp; Kontakt</th>
+                <th>Status</th>
+                <th style="text-align: right;">Aktion</th>
+              </tr>
+            </thead>
+            <tbody id="reservationsBody"></tbody>
           </table>
         </div>
       </div>
@@ -350,6 +381,9 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../assets/js/supabase-config.js"></script>
+  <script src="../assets/js/api.js"></script>
   <script src="../assets/js/admin.js"></script>
 </body>
 </html>

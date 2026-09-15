@@ -106,7 +106,7 @@
             Wo Tradition auf erlesene <em>Koch- &amp; Tischkultur</em> trifft.
           </h1>
           <p class="hero__lead">
-            Seit über 110 Jahren führt unsere Familie mit Leidenschaft ein ausgewähltes Sortiment an Premium-Kochgeschirr, Haushaltswaren und Elektrokleingeräten im Herzen von Mattsee – stets mit einer ehrlichen, persönlichen Fachberatung.
+            Seit über 112 Jahren führt unsere Familie mit Leidenschaft ein ausgewähltes Sortiment an Premium-Kochgeschirr, Haushaltswaren und Elektrokleingeräten im Herzen von Mattsee – stets mit einer ehrlichen, persönlichen Fachberatung.
           </p>
           <div class="hero__actions">
             <a href="click-and-collect.html" class="btn btn--primary">
@@ -186,9 +186,8 @@
               <span class="card__num">Kategorie 01</span>
               <h3 class="card__title">Haushaltswaren &amp; Kochgeschirr</h3>
               <p class="card__text">
-                Erlesenes Kochgeschirr von WMF und Silit, Riess Emaille, Schnellkochtöpfe von Kelomat, Kaiser Backformen sowie edles WMF Besteck und Alfi Thermoskannen.
+                Erlesenes Kochgeschirr, Emaille-Geschirr, Schnellkochtöpfe und Backformen sowie edles Besteck und hochwertige Thermoskannen – für jeden Anspruch in der Küche.
               </p>
-              <div class="card__brands">WMF · Silit · Kaiser · Riess Emaille · Kelomat · Alfi</div>
               <a href="click-and-collect.html" class="link-arrow">
                 <span>Im Click &amp; Collect Shop ansehen</span>
                 <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -205,9 +204,8 @@
               <span class="card__num">Kategorie 02</span>
               <h3 class="card__title">Elektrokleingeräte</h3>
               <p class="card__text">
-                Langlebige Küchenmaschinen, Kaffeemaschinen, Mixer, Miele Staubsauger und Bügeltechnik – ausgewählt nach hoher Wertigkeit und langer Lebensdauer.
+                Langlebige Küchenmaschinen, Kaffeemaschinen, Mixer, Staubsauger und Bügeltechnik – ausgewählt nach hoher Wertigkeit und langer Lebensdauer.
               </p>
-              <div class="card__brands">Bosch · Miele · Krups · Tefal · Braun · Rowenta · Moulinex</div>
               <a href="click-and-collect.html" class="link-arrow">
                 <span>Im Click &amp; Collect Shop ansehen</span>
                 <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
@@ -234,7 +232,7 @@
       <div class="wrap">
         <div class="section-head reveal">
           <span class="eyebrow eyebrow--dark">Warum Lögl</span>
-          <h2 class="section-title">Unsere Werte seit <em>über 110 Jahren.</em></h2>
+          <h2 class="section-title">Unsere Werte seit <em>über 112 Jahren.</em></h2>
         </div>
         <div class="values__grid">
           <article class="value reveal">
@@ -294,6 +292,12 @@
               <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </span>
           </figure>
+          <figure class="gallery__item reveal">
+            <img src="assets/1923175_th.jpg" alt="Einblick in das Sortiment und die Warenpräsentation bei Lögl in Mattsee" width="500" height="500" loading="lazy" />
+            <span class="gallery__zoom-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+          </figure>
         </div>
       </div>
     </section>
@@ -337,6 +341,25 @@
   </main>
 
   <a href="#top" class="totop" id="toTop" aria-label="Nach oben scrollen">↑</a>
+
+  <!-- ============ GALERIE-LIGHTBOX ============ -->
+  <div class="glightbox" id="galleryLightbox" role="dialog" aria-modal="true" aria-label="Bildansicht" hidden>
+    <button class="glightbox__close" id="glClose" type="button" aria-label="Schließen">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <button class="glightbox__nav glightbox__nav--prev" id="glPrev" type="button" aria-label="Vorheriges Bild">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <figure class="glightbox__stage" id="glStage">
+      <img class="glightbox__img" id="glImg" src="" alt="" />
+      <figcaption class="glightbox__caption" id="glCaption"></figcaption>
+    </figure>
+    <button class="glightbox__nav glightbox__nav--next" id="glNext" type="button" aria-label="Nächstes Bild">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+    <span class="glightbox__counter" id="glCounter"></span>
+  </div>
+
   <script src="assets/js/main.js"></script>
 </body>
 </html>

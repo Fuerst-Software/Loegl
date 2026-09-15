@@ -44,7 +44,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: 90px; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: 90px; zoom: 0.9; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -161,7 +161,7 @@ a { color: inherit; text-decoration: none; }
 .header__inner { display: flex; align-items: center; justify-content: space-between; height: 88px; }
 
 .brand { display: flex; align-items: center; gap: 0.8rem; line-height: 0; }
-.brand__logo { height: 48px; width: auto; mix-blend-mode: multiply; transition: opacity 0.3s, transform 0.3s; }
+.brand__logo { height: 64px; width: auto; mix-blend-mode: multiply; transition: opacity 0.3s, transform 0.3s; }
 
 .nav { display: flex; align-items: center; gap: 1.8rem; }
 .nav__link {
@@ -310,6 +310,63 @@ a { color: inherit; text-decoration: none; }
   opacity: 0; transform: scale(0.8); transition: all 0.3s var(--ease);
 }
 .gallery__item:hover .gallery__zoom-icon { opacity: 1; transform: scale(1); }
+.gallery__item:focus-visible { outline: 3px solid var(--gold-dark); outline-offset: 3px; }
+
+/* ---------- GALERIE-LIGHTBOX ---------- */
+.glightbox {
+  position: fixed; inset: 0; z-index: 3000;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  background: rgba(18, 17, 15, 0.92); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity 0.3s var(--ease);
+}
+.glightbox[hidden] { display: none !important; }
+.glightbox.is-open { opacity: 1; }
+.glightbox__stage {
+  margin: 0; position: relative; display: flex; flex-direction: column; align-items: center;
+  max-width: min(1100px, 100%); max-height: 100%;
+}
+.glightbox__img {
+  display: block; max-width: 100%; max-height: calc(100vh - 8rem);
+  width: auto; height: auto; object-fit: contain;
+  border-radius: var(--r); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  background: #fff; transform: scale(0.96); transition: transform 0.3s var(--ease);
+}
+.glightbox.is-open .glightbox__img { transform: scale(1); }
+.glightbox__caption {
+  margin-top: 1rem; color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; text-align: center;
+  max-width: 60ch; line-height: 1.5;
+}
+.glightbox__close {
+  position: absolute; top: 1.2rem; right: 1.2rem; z-index: 2;
+  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.12); color: #fff; display: grid; place-items: center;
+  transition: background 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.glightbox__close:hover { background: rgba(255, 255, 255, 0.25); transform: rotate(90deg); }
+.glightbox__nav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255, 255, 255, 0.12); color: #fff; display: grid; place-items: center;
+  transition: background 0.25s var(--ease);
+}
+.glightbox__nav:hover { background: rgba(255, 255, 255, 0.25); }
+.glightbox__nav--prev { left: 1.2rem; }
+.glightbox__nav--next { right: 1.2rem; }
+.glightbox__counter {
+  position: absolute; bottom: 1.4rem; left: 50%; transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.75); font-size: 0.85rem; letter-spacing: 0.05em;
+}
+body.glightbox-open { overflow: hidden; }
+@media (max-width: 640px) {
+  .glightbox { padding: 0; }
+  .glightbox__img { max-height: 72vh; border-radius: 0; }
+  .glightbox__close { top: 0.9rem; right: 0.9rem; width: 42px; height: 42px; }
+  .glightbox__nav { width: 44px; height: 44px; }
+  .glightbox__nav--prev { left: 0.5rem; }
+  .glightbox__nav--next { right: 0.5rem; }
+  .glightbox__caption { padding: 0 1rem; font-size: 0.82rem; }
+}
 
 /* ---------- NEWS & PRESSE PAGE STYLES ---------- */
 .press { padding: 4.5rem 0 6rem; background: var(--paper); }
@@ -551,7 +608,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
   .header { position: sticky; top: 0; z-index: 120; }
   .header__inner { height: 70px; }
-  .brand__logo { height: 40px; }
+  .brand__logo { height: 52px; }
 
   /* Mobile Navigation Menu Clean Card Dropdown (Zero Extra Contact Boxes) */
   .burger { display: flex !important; align-items: center; justify-content: center; z-index: 130; width: 44px; height: 44px; padding: 10px 8px; border-radius: 8px; background: rgba(22, 21, 19, 0.04); }

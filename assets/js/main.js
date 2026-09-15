@@ -263,10 +263,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const productGrid = document.getElementById('productGrid');
   const catalogFilters = document.getElementById('catalogFilters');
 
-  function renderPublicProducts() {
-    if (!productGrid) return;
-    const allProducts = getShopProducts();
-    const activeProducts = allProducts.filter(p => p.active !== false);
+  async function renderPublicProducts() {
+    if (!productGrid || !window.LoeglAPI) return;
+    productGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;"><p style="color: var(--ink-soft); font-size: 1.05rem;">Produkte werden geladen …</p></div>`;
+
+    let activeProducts;
+    try {
+      activeProducts = await LoeglAPI.getProducts();
+    } catch (err) {
+      console.error('Produkte laden fehlgeschlagen:', err);
+      productGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;"><p style="color: #c62828; font-size: 1.05rem;">Die Produkte konnten gerade nicht geladen werden. Bitte später erneut versuchen.</p></div>`;
+      return;
+    }
 
     productGrid.innerHTML = '';
     if (activeProducts.length === 0) {
@@ -351,11 +359,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const aktionenGrid = document.getElementById('aktionenGrid');
   const aktionenFilters = document.getElementById('aktionenFilters');
 
-  function renderPublicAktionen() {
-    if (!aktionenGrid) return;
+  async function renderPublicAktionen() {
+    if (!aktionenGrid || !window.LoeglAPI) return;
+    aktionenGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;"><p style="color: var(--ink-soft); font-size: 1.05rem;">Aktionen werden geladen …</p></div>`;
 
-    const allAktionen = getShopAktionen();
-    const activeAktionen = allAktionen.filter(a => a.active !== false);
+    let activeAktionen;
+    try {
+      activeAktionen = await LoeglAPI.getAktionen();
+    } catch (err) {
+      console.error('Aktionen laden fehlgeschlagen:', err);
+      aktionenGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;"><p style="color: #c62828; font-size: 1.05rem;">Die Aktionen konnten gerade nicht geladen werden.</p></div>`;
+      return;
+    }
 
     aktionenGrid.innerHTML = '';
 
@@ -545,29 +560,126 @@ document.addEventListener('DOMContentLoaded', () => {
   if (ccFinishBtn) ccFinishBtn.addEventListener('click', () => ccModal.classList.remove('is-open'));
 
   if (ccForm) {
-    ccForm.addEventListener('submit', (e) => {
+    ccForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('ccName').value.trim();
+      const phone = document.getElementById('ccPhone').value.trim();
+      const email = document.getElementById('ccEmail').value.trim();
 
-      // Decrement stock in localStorage if product ID is known
-      if (currentTargetProduct && currentTargetProduct.id) {
-        const allProducts = getShopProducts();
-        const prod = allProducts.find(p => p.id === currentTargetProduct.id);
-        if (prod && prod.stock > 0) {
-          prod.stock = prod.stock - 1;
-          localStorage.setItem('loegl_products', JSON.stringify(allProducts));
-          renderPublicProducts();
-        }
+      if (!currentTargetProduct || !currentTargetProduct.id) return;
+
+      const submitBtn = ccForm.querySelector('[type="submit"]');
+      const prevLabel = submitBtn ? submitBtn.innerHTML : '';
+      const oldErr = ccForm.querySelector('.cc-error');
+      if (oldErr) oldErr.remove();
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Wird reserviert …</span>'; }
+
+      try {
+        const result = await LoeglAPI.createReservation(currentTargetProduct.id, name, phone, email);
+
+        document.getElementById('succName').textContent = name;
+        document.getElementById('succCode').textContent = result.pickup_code;
+        document.getElementById('succTitle').textContent = result.product_title || currentTargetProduct.title;
+
+        ccStepForm.style.display = 'none';
+        ccStepSuccess.style.display = 'block';
+
+        // Lagerbestand im Shop aktualisieren (DB hat um 1 reduziert)
+        renderPublicProducts();
+      } catch (err) {
+        console.error('Reservierung fehlgeschlagen:', err);
+        const msg = (err && err.message && /Lager|verfügbar|gefunden/i.test(err.message))
+          ? err.message
+          : 'Die Reservierung hat nicht geklappt. Bitte prüfen Sie Ihre Angaben und versuchen Sie es erneut.';
+        const p = document.createElement('p');
+        p.className = 'cc-error';
+        p.style.cssText = 'color:#c62828;font-weight:600;margin-top:1rem;font-size:0.9rem;';
+        p.textContent = msg;
+        ccForm.appendChild(p);
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = prevLabel; }
       }
-
-      const randomCode = 'LÖGL-CC-' + Math.floor(10000 + Math.random() * 90000);
-      document.getElementById('succName').textContent = name;
-      document.getElementById('succCode').textContent = randomCode;
-      document.getElementById('succTitle').textContent = currentTargetProduct ? currentTargetProduct.title : 'Gewählter Artikel';
-
-      ccStepForm.style.display = 'none';
-      ccStepSuccess.style.display = 'block';
     });
+  }
+
+  /* =========================================================
+     GALERIE-LIGHTBOX (Impressionen)
+     ========================================================= */
+  const galleryItems = Array.from(document.querySelectorAll('.gallery__grid .gallery__item'));
+  const glBox = document.getElementById('galleryLightbox');
+  if (galleryItems.length && glBox) {
+    const glImg = document.getElementById('glImg');
+    const glCaption = document.getElementById('glCaption');
+    const glCounter = document.getElementById('glCounter');
+    const glClose = document.getElementById('glClose');
+    const glPrev = document.getElementById('glPrev');
+    const glNext = document.getElementById('glNext');
+
+    const slides = galleryItems.map(item => {
+      const img = item.querySelector('img');
+      return { src: img ? img.getAttribute('src') : '', alt: img ? (img.getAttribute('alt') || '') : '' };
+    });
+
+    let currentIndex = 0;
+    let closeTimer = null;
+
+    function showSlide(i) {
+      currentIndex = (i + slides.length) % slides.length;
+      const slide = slides[currentIndex];
+      glImg.setAttribute('src', slide.src);
+      glImg.setAttribute('alt', slide.alt);
+      glCaption.textContent = slide.alt;
+      glCounter.textContent = (currentIndex + 1) + ' / ' + slides.length;
+    }
+
+    function openLightbox(i) {
+      clearTimeout(closeTimer);
+      showSlide(i);
+      glBox.hidden = false;
+      document.body.classList.add('glightbox-open');
+      // force reflow, then trigger fade/scale transition (robust even when tab isn't compositing)
+      void glBox.offsetWidth;
+      glBox.classList.add('is-open');
+      glClose.focus();
+    }
+
+    function closeLightbox() {
+      glBox.classList.remove('is-open');
+      document.body.classList.remove('glightbox-open');
+      closeTimer = setTimeout(() => { glBox.hidden = true; }, 300);
+    }
+
+    galleryItems.forEach((item, i) => {
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      const img = item.querySelector('img');
+      item.setAttribute('aria-label', 'Bild vergrößern: ' + (img ? (img.getAttribute('alt') || 'Impression') : 'Impression'));
+      item.addEventListener('click', () => openLightbox(i));
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); }
+      });
+    });
+
+    glClose.addEventListener('click', closeLightbox);
+    glPrev.addEventListener('click', () => showSlide(currentIndex - 1));
+    glNext.addEventListener('click', () => showSlide(currentIndex + 1));
+    // Click on backdrop (outside image/controls) closes
+    glBox.addEventListener('click', (e) => { if (e.target === glBox) closeLightbox(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (glBox.hidden) return;
+      if (e.key === 'Escape') closeLightbox();
+      else if (e.key === 'ArrowLeft') showSlide(currentIndex - 1);
+      else if (e.key === 'ArrowRight') showSlide(currentIndex + 1);
+    });
+
+    // Touch-Swipe (Mobil)
+    let touchStartX = 0;
+    glBox.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+    glBox.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) showSlide(currentIndex + (dx < 0 ? 1 : -1));
+    }, { passive: true });
   }
 
   // Copyright Year

@@ -1,130 +1,35 @@
 /* =========================================================
-   LÖGL Haus- & Küchengeräte — Owner Admin Portal Engine
-   Products & Aktionen Management with Live Upload
-   (Zero Emojis - 100% SVG Vector Icons)
+   LÖGL Haus- & Küchengeräte — Inhaber Admin Portal
+   Backend: Supabase (Auth + PostgreSQL + Storage)
+   Voraussetzung: supabase-js (CDN) + supabase-config.js + api.js
+   sind VOR dieser Datei geladen.
    ========================================================= */
 
-const DEFAULT_PRODUCTS = [
-  {
-    id: 'WMF-101',
-    title: 'WMF Gourmet Plus Topf-Set 4-teilig',
-    brand: 'WMF',
-    category: 'haushalt wmf',
-    price: '249,00 €',
-    stock: 6,
-    active: true,
-    img: 'assets/products/wmf_topfset.jpg',
-    desc: 'Das WMF Gourmet Plus Topfset vereint höchste Verarbeitungsqualität mit zeitloser Eleganz. Gefertigt aus rostfreiem Cromargan® Edelstahl 18/10 mit TransTherm®-Allherdboden.',
-    specs: 'Material: Cromargan® Edelstahl 18/10 | Inhalt: 3x Fleischtopf, 1x Bratentopf'
-  },
-  {
-    id: 'ROWENTA-301',
-    title: 'Rowenta Silence Force Elektro-Staubsauger',
-    brand: 'Rowenta',
-    category: 'elektro rowenta',
-    price: '199,90 €',
-    stock: 4,
-    active: true,
-    img: 'assets/stock/sortiment-elektro.jpg',
-    desc: 'Extrem leise und leistungsstark: Der Rowenta Silence Force vereint erstklassige Reinigungsleistung auf allen Böden mit flüsterleisem Betrieb.',
-    specs: 'Leistung: 750 Watt | Lautstärke: 57 dB(A) | Aktionsradius: 12 Meter'
-  },
-  {
-    id: 'RIESS-601',
-    title: 'Riess Classic Emaille-Kasserolle 20cm',
-    brand: 'Riess',
-    category: 'haushalt riess',
-    price: '54,90 €',
-    stock: 8,
-    active: true,
-    img: 'assets/products/riess_emaille.jpg',
-    desc: 'Traditionelles Emaille-Geschirr aus dem Mostviertel in Österreich. Ideal für schonendes Kochen, Braten und Servieren.',
-    specs: 'Material: Porzellan-Emaille auf Stahlkern | Durchmesser: 20 cm'
-  },
-  {
-    id: 'KAISER-501',
-    title: 'Kaiser Inspiration Springform 26cm',
-    brand: 'Kaiser',
-    category: 'backen kaiser',
-    price: '29,95 €',
-    stock: 12,
-    active: true,
-    img: 'assets/products/kaiser_form.jpg',
-    desc: 'Hochwertige Backform für feinste Kuchen und Torten. Der auslaufsichere Rand verhindert ein Überlaufen im Backofen.',
-    specs: 'Durchmesser: 26 cm | Beschichtung: KeraVis 2-fach Antihaft'
-  }
-];
-
-const DEFAULT_AKTIONEN = [
-  {
-    id: 'AKT-1',
-    title: 'WMF Alt-gegen-Neu Eintauschaktion',
-    type: 'angebot',
-    date: 'Gültig bis 31. August 2026',
-    active: true,
-    img: 'assets/products/wmf_topfset.jpg',
-    desc: 'Bringen Sie Ihr altes Kochgeschirr (egal welcher Marke) zu uns ins Fachgeschäft nach Mattsee und sichern Sie sich sofort 20% Eintausch-Rabatt auf ein neues WMF Topfset!',
-    badge: '-20% Eintausch-Rabatt auf WMF Topfsets'
-  },
-  {
-    id: 'AKT-2',
-    title: 'Rowenta & Krups Elektro-Aktionswochen',
-    type: 'angebot',
-    date: 'Gültig bis 15. September 2026',
-    active: true,
-    img: 'assets/stock/sortiment-elektro.jpg',
-    desc: 'Beim Kauf eines ausgewählten Rowenta oder Krups Elektrogeräts schenken wir Ihnen 30 € Direkt-Gutschrift an der Kassa in Mattsee.',
-    badge: '30 € Direkt-Gutschrift vor Ort'
-  },
-  {
-    id: 'AKT-4',
-    title: 'Sommer-Kochgeschirr Aktionswochen',
-    type: 'saisonal',
-    date: 'Gültig solange der Vorrat reicht',
-    active: true,
-    img: 'assets/products/riess_emaille.jpg',
-    desc: 'Zu jeder Riess Emaille Kasserolle oder WMF Gourmet-Pfanne erhalten Sie ein hochwertiges 3-teiliges Edelstahl-Silikon Küchenhelfer-Set gratis dazu.',
-    badge: 'Gratis Küchenhelfer-Set dazu'
-  }
-];
-
-function getStoredProducts() {
-  const data = localStorage.getItem('loegl_products');
-  if (!data) {
-    localStorage.setItem('loegl_products', JSON.stringify(DEFAULT_PRODUCTS));
-    return DEFAULT_PRODUCTS;
-  }
-  try {
-    let prods = JSON.parse(data);
-    prods = prods.filter(p => !['bosch', 'miele', 'alfi'].includes((p.brand || '').toLowerCase()));
-    localStorage.setItem('loegl_products', JSON.stringify(prods));
-    return prods;
-  } catch (e) { return DEFAULT_PRODUCTS; }
+// Preis-Eingabe robust in Zahl umwandeln ("249,00 €" | "249" | "199.9" -> Number)
+function parsePrice(v) {
+  if (typeof v === 'number') return v;
+  var s = String(v == null ? '' : v).replace(/[€\s]/g, '').trim();
+  if (s.indexOf(',') >= 0) { s = s.replace(/\./g, '').replace(',', '.'); }
+  var n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
 }
-
-function saveStoredProducts(products) {
-  localStorage.setItem('loegl_products', JSON.stringify(products));
+// Zahl -> deutsches Eingabeformat ohne € ("249,00")
+function priceInputValue(n) {
+  return Number(n || 0).toLocaleString('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
-function getStoredAktionen() {
-  const data = localStorage.getItem('loegl_aktionen');
-  if (!data) {
-    localStorage.setItem('loegl_aktionen', JSON.stringify(DEFAULT_AKTIONEN));
-    return DEFAULT_AKTIONEN;
-  }
-  try {
-    let akt = JSON.parse(data);
-    akt = akt.filter(a => !['miele', 'bosch', 'alfi'].some(b => (a.title || '').toLowerCase().includes(b)));
-    localStorage.setItem('loegl_aktionen', JSON.stringify(akt));
-    return akt;
-  } catch (e) { return DEFAULT_AKTIONEN; }
-}
-
-function saveStoredAktionen(aktionen) {
-  localStorage.setItem('loegl_aktionen', JSON.stringify(aktionen));
+// Bildpfad für Admin-Kontext (/admin/) korrigieren
+function adminImgPath(img) {
+  var p = img || '../assets/products/wmf_topfset.jpg';
+  if (!p.startsWith('../') && !p.startsWith('http') && !p.startsWith('data:')) p = '../' + p;
+  return p;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  if (!window.LoeglAPI) {
+    alert('Fehler: Verbindung zum Backend nicht verfügbar. Bitte Seite neu laden.');
+    return;
+  }
 
   const loginView = document.getElementById('loginView');
   const dashboardView = document.getElementById('dashboardView');
@@ -135,38 +40,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginError = document.getElementById('loginError');
   const logoutBtn = document.getElementById('logoutBtn');
 
-  // Tab Navigation Elements
+  // aktuelle Daten (für Bearbeiten/Umschalten ohne erneutes Laden)
+  let currentProducts = [];
+  let currentAktionen = [];
+
+  /* ---------------- TAB-NAVIGATION ---------------- */
   const navTabProducts = document.getElementById('navTabProducts');
   const navTabAktionen = document.getElementById('navTabAktionen');
+  const navTabReservations = document.getElementById('navTabReservations');
   const tabProductsView = document.getElementById('tabProductsView');
   const tabAktionenView = document.getElementById('tabAktionenView');
+  const tabReservationsView = document.getElementById('tabReservationsView');
 
-  if (navTabProducts && navTabAktionen) {
-    navTabProducts.addEventListener('click', () => {
-      navTabProducts.classList.add('is-active');
-      navTabAktionen.classList.remove('is-active');
-      tabProductsView.style.display = 'block';
-      tabAktionenView.style.display = 'none';
-      renderDashboard();
-    });
-
-    navTabAktionen.addEventListener('click', () => {
-      navTabAktionen.classList.add('is-active');
-      navTabProducts.classList.remove('is-active');
-      tabAktionenView.style.display = 'block';
-      tabProductsView.style.display = 'none';
-      renderAktionenDashboard();
-    });
+  function activateTab(which) {
+    [navTabProducts, navTabAktionen, navTabReservations].forEach(b => b && b.classList.remove('is-active'));
+    if (tabProductsView) tabProductsView.style.display = 'none';
+    if (tabAktionenView) tabAktionenView.style.display = 'none';
+    if (tabReservationsView) tabReservationsView.style.display = 'none';
+    if (which === 'products') { navTabProducts && navTabProducts.classList.add('is-active'); if (tabProductsView) tabProductsView.style.display = 'block'; renderDashboard(); }
+    if (which === 'aktionen') { navTabAktionen && navTabAktionen.classList.add('is-active'); if (tabAktionenView) tabAktionenView.style.display = 'block'; renderAktionenDashboard(); }
+    if (which === 'reservations') { navTabReservations && navTabReservations.classList.add('is-active'); if (tabReservationsView) tabReservationsView.style.display = 'block'; renderReservations(); }
   }
+  if (navTabProducts) navTabProducts.addEventListener('click', () => activateTab('products'));
+  if (navTabAktionen) navTabAktionen.addEventListener('click', () => activateTab('aktionen'));
+  if (navTabReservations) navTabReservations.addEventListener('click', () => activateTab('reservations'));
 
-  // Session Check
-  function checkSession() {
-    const isLoggedIn = sessionStorage.getItem('loegl_admin_logged_in') === 'true';
-    if (isLoggedIn) {
+  /* ---------------- SESSION / LOGIN ---------------- */
+  async function checkSession() {
+    let session = null;
+    try { session = await LoeglAPI.getSession(); } catch (e) { session = null; }
+    if (session) {
       if (loginView) loginView.style.display = 'none';
       if (dashboardView) dashboardView.style.display = 'flex';
       renderDashboard();
       renderAktionenDashboard();
+      updateOpenReservationsKpi();
     } else {
       if (loginView) loginView.style.display = 'flex';
       if (dashboardView) dashboardView.style.display = 'none';
@@ -174,47 +82,58 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (adminLoginForm) {
-    adminLoginForm.addEventListener('submit', (e) => {
+    adminLoginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (loginUser.value.trim() === 'admin' && loginPass.value.trim() === 'admin') {
-        sessionStorage.setItem('loegl_admin_logged_in', 'true');
-        if (loginError) loginError.style.display = 'none';
-        checkSession();
-      } else {
-        if (loginError) loginError.style.display = 'block';
+      if (loginError) loginError.style.display = 'none';
+      const btn = adminLoginForm.querySelector('[type="submit"]');
+      const prev = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Anmelden …'; }
+      try {
+        const { error } = await LoeglAPI.signIn(loginUser.value.trim(), loginPass.value);
+        if (error) throw error;
+        await checkSession();
+      } catch (err) {
+        console.error('Login fehlgeschlagen:', err);
+        if (loginError) { loginError.textContent = 'Ungültige Anmeldedaten.'; loginError.style.display = 'block'; }
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = prev; }
       }
     });
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      sessionStorage.removeItem('loegl_admin_logged_in');
+    logoutBtn.addEventListener('click', async () => {
+      try { await LoeglAPI.signOut(); } catch (e) {}
       checkSession();
     });
   }
 
-  /* ---------------------------------------------------------
-     1. PRODUCTS DASHBOARD ENGINE
-     --------------------------------------------------------- */
+  /* ---------------- PRODUKTE ---------------- */
   const kpiTotal = document.getElementById('kpiTotal');
   const kpiActive = document.getElementById('kpiActive');
   const kpiInactive = document.getElementById('kpiInactive');
   const adminProductTableBody = document.getElementById('adminProductTableBody');
   const adminSearch = document.getElementById('adminSearch');
 
-  function renderDashboard() {
-    const products = getStoredProducts();
-    
+  async function renderDashboard() {
+    if (!adminProductTableBody) return;
+    adminProductTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">Produkte werden geladen …</td></tr>`;
+    try {
+      currentProducts = await LoeglAPI.getAllProducts();
+    } catch (err) {
+      console.error(err);
+      adminProductTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:#c62828;">Produkte konnten nicht geladen werden.</td></tr>`;
+      return;
+    }
+    const products = currentProducts;
     if (kpiTotal) kpiTotal.textContent = products.length;
     if (kpiActive) kpiActive.textContent = products.filter(p => p.active !== false).length;
     if (kpiInactive) kpiInactive.textContent = products.filter(p => p.active === false).length;
 
     const query = adminSearch ? adminSearch.value.toLowerCase().trim() : '';
-    const filtered = products.filter(p => p.title.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query));
+    const filtered = products.filter(p => (p.title || '').toLowerCase().includes(query) || (p.brand || '').toLowerCase().includes(query));
 
-    if (!adminProductTableBody) return;
     adminProductTableBody.innerHTML = '';
-
     if (filtered.length === 0) {
       adminProductTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 3rem; color: var(--ink-soft);">Keine Produkte gefunden.</td></tr>`;
       return;
@@ -222,22 +141,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(prod => {
       const tr = document.createElement('tr');
-      let imgPath = prod.img;
-      if (!imgPath.startsWith('../') && !imgPath.startsWith('http') && !imgPath.startsWith('data:')) imgPath = '../' + imgPath;
-
       tr.innerHTML = `
         <td>
           <div style="display: flex; align-items: center; gap: 1rem;">
-            <img src="${imgPath}" alt="${prod.title}" style="width: 52px; height: 52px; object-fit: contain; background: #fff; padding: 0.3rem; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0;" />
+            <img src="${adminImgPath(prod.img)}" alt="${prod.title}" style="width: 52px; height: 52px; object-fit: contain; background: #fff; padding: 0.3rem; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0;" />
             <div>
               <strong style="display: block; color: var(--ink); font-size: 0.98rem;">${prod.title}</strong>
-              <span style="font-size: 0.76rem; color: var(--ink-soft); font-family: monospace;">ID: ${prod.id}</span>
+              <span style="font-size: 0.76rem; color: var(--ink-soft); font-family: monospace;">${prod.sku || ''}</span>
             </div>
           </div>
         </td>
         <td>
-          <strong style="color: var(--gold-dark); font-size: 0.85rem; text-transform: uppercase;">${prod.brand}</strong><br />
-          <span style="font-size: 0.8rem; color: var(--ink-soft);">${prod.category}</span>
+          <strong style="color: var(--gold-dark); font-size: 0.85rem; text-transform: uppercase;">${prod.brand || ''}</strong><br />
+          <span style="font-size: 0.8rem; color: var(--ink-soft);">${prod.category || ''}</span>
         </td>
         <td><strong style="font-family: var(--serif); font-size: 1.2rem; color: var(--ink);">${prod.price}</strong></td>
         <td>
@@ -271,57 +187,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (adminSearch) adminSearch.addEventListener('input', renderDashboard);
 
-  window.adjustStock = function(id, delta) {
-    const products = getStoredProducts();
-    const prod = products.find(p => p.id === id);
-    if (prod) {
-      prod.stock = Math.max(0, (prod.stock || 0) + delta);
-      saveStoredProducts(products);
+  window.adjustStock = async function (id, delta) {
+    const prod = currentProducts.find(p => p.id === id);
+    if (!prod) return;
+    const newStock = Math.max(0, (prod.stock || 0) + delta);
+    try {
+      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, stock: newStock, active: prod.active, img: prod.img, desc: prod.desc, specs: prod.specs });
+      prod.stock = newStock;
       renderDashboard();
-    }
+    } catch (err) { console.error(err); alert('Lagerbestand konnte nicht gespeichert werden.'); }
   };
 
-  window.toggleProductActive = function(id, state) {
-    const products = getStoredProducts();
-    const prod = products.find(p => p.id === id);
-    if (prod) {
-      prod.active = state;
-      saveStoredProducts(products);
+  window.toggleProductActive = async function (id, state) {
+    const prod = currentProducts.find(p => p.id === id);
+    if (!prod) return;
+    try {
+      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, stock: prod.stock, active: state, img: prod.img, desc: prod.desc, specs: prod.specs });
       renderDashboard();
-    }
+    } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); renderDashboard(); }
   };
 
-  window.deleteProduct = function(id) {
-    const products = getStoredProducts();
-    const prod = products.find(p => p.id === id);
+  window.deleteProduct = async function (id) {
+    const prod = currentProducts.find(p => p.id === id);
     if (prod && confirm(`Möchten Sie das Produkt "${prod.title}" löschen?`)) {
-      saveStoredProducts(products.filter(p => p.id !== id));
-      renderDashboard();
+      try { await LoeglAPI.deleteProduct(id); renderDashboard(); }
+      catch (err) { console.error(err); alert('Produkt konnte nicht gelöscht werden.'); }
     }
   };
 
-  /* ---------------------------------------------------------
-     2. AKTIONEN DASHBOARD ENGINE
-     --------------------------------------------------------- */
+  /* ---------------- AKTIONEN ---------------- */
   const kpiAktionenTotal = document.getElementById('kpiAktionenTotal');
   const kpiAktionenActive = document.getElementById('kpiAktionenActive');
   const kpiAktionenSaisonal = document.getElementById('kpiAktionenSaisonal') || document.getElementById('kpiAktionenRueckruf');
   const adminAktionTableBody = document.getElementById('adminAktionTableBody');
   const adminAktionSearch = document.getElementById('adminAktionSearch');
 
-  function renderAktionenDashboard() {
-    const aktionen = getStoredAktionen();
-
+  async function renderAktionenDashboard() {
+    if (!adminAktionTableBody) return;
+    adminAktionTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--ink-soft);">Aktionen werden geladen …</td></tr>`;
+    try {
+      currentAktionen = await LoeglAPI.getAllAktionen();
+    } catch (err) {
+      console.error(err);
+      adminAktionTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:#c62828;">Aktionen konnten nicht geladen werden.</td></tr>`;
+      return;
+    }
+    const aktionen = currentAktionen;
     if (kpiAktionenTotal) kpiAktionenTotal.textContent = aktionen.length;
     if (kpiAktionenActive) kpiAktionenActive.textContent = aktionen.filter(a => a.active !== false).length;
     if (kpiAktionenSaisonal) kpiAktionenSaisonal.textContent = aktionen.filter(a => a.type === 'saisonal').length;
 
     const query = adminAktionSearch ? adminAktionSearch.value.toLowerCase().trim() : '';
-    const filtered = aktionen.filter(a => a.title.toLowerCase().includes(query) || a.desc.toLowerCase().includes(query));
+    const filtered = aktionen.filter(a => (a.title || '').toLowerCase().includes(query) || (a.desc || '').toLowerCase().includes(query));
 
-    if (!adminAktionTableBody) return;
     adminAktionTableBody.innerHTML = '';
-
     if (filtered.length === 0) {
       adminAktionTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--ink-soft);">Keine Aktionen gefunden.</td></tr>`;
       return;
@@ -329,26 +248,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     filtered.forEach(akt => {
       const tr = document.createElement('tr');
-      let imgPath = akt.img;
-      if (!imgPath.startsWith('../') && !imgPath.startsWith('http') && !imgPath.startsWith('data:')) imgPath = '../' + imgPath;
-
       let typeBadgeHtml = `<span style="font-size: 0.72rem; font-weight: 700; color: var(--gold-dark); background: var(--gold-light); padding: 0.25em 0.6em; border-radius: 4px;">Sonderangebot</span>`;
       if (akt.type === 'saisonal') {
         typeBadgeHtml = `<span style="font-size: 0.72rem; font-weight: 700; color: #1565c0; background: rgba(21, 101, 192, 0.1); padding: 0.25em 0.6em; border-radius: 4px;">Saisonales Highlight</span>`;
       }
-
       tr.innerHTML = `
         <td>
           <div style="display: flex; align-items: center; gap: 1rem;">
-            <img src="${imgPath}" alt="${akt.title}" style="width: 52px; height: 52px; object-fit: contain; background: #fff; padding: 0.3rem; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0;" />
+            <img src="${adminImgPath(akt.img)}" alt="${akt.title}" style="width: 52px; height: 52px; object-fit: contain; background: #fff; padding: 0.3rem; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0;" />
             <div>
               <strong style="display: block; color: var(--ink); font-size: 0.98rem;">${akt.title}</strong>
-              <span style="font-size: 0.76rem; color: var(--ink-soft); font-family: monospace;">ID: ${akt.id}</span>
             </div>
           </div>
         </td>
         <td>${typeBadgeHtml}</td>
-        <td><strong style="font-size: 0.88rem; color: var(--ink);">${akt.date}</strong></td>
+        <td><strong style="font-size: 0.88rem; color: var(--ink);">${akt.date || ''}</strong></td>
         <td>
           <div style="display: flex; align-items: center; gap: 0.6rem;">
             <label class="switch">
@@ -373,28 +287,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (adminAktionSearch) adminAktionSearch.addEventListener('input', renderAktionenDashboard);
 
-  window.toggleAktionActive = function(id, state) {
-    const aktionen = getStoredAktionen();
-    const akt = aktionen.find(a => a.id === id);
-    if (akt) {
-      akt.active = state;
-      saveStoredAktionen(aktionen);
+  window.toggleAktionActive = async function (id, state) {
+    const akt = currentAktionen.find(a => a.id === id);
+    if (!akt) return;
+    try {
+      await LoeglAPI.saveAktion({ id: akt.id, title: akt.title, type: akt.type, date: akt.date, active: state, img: akt.img, desc: akt.desc, badge: akt.badge });
       renderAktionenDashboard();
-    }
+    } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); renderAktionenDashboard(); }
   };
 
-  window.deleteAktion = function(id) {
-    const aktionen = getStoredAktionen();
-    const akt = aktionen.find(a => a.id === id);
+  window.deleteAktion = async function (id) {
+    const akt = currentAktionen.find(a => a.id === id);
     if (akt && confirm(`Möchten Sie die Aktion "${akt.title}" wirklich löschen?`)) {
-      saveStoredAktionen(aktionen.filter(a => a.id !== id));
-      renderAktionenDashboard();
+      try { await LoeglAPI.deleteAktion(id); renderAktionenDashboard(); }
+      catch (err) { console.error(err); alert('Aktion konnte nicht gelöscht werden.'); }
     }
   };
 
-  /* ---------------------------------------------------------
-     3. PRODUCT MODAL HANDLERS
-     --------------------------------------------------------- */
+  /* ---------------- PRODUKT-MODAL ---------------- */
   const productModal = document.getElementById('productModal');
   const openAddModalBtn = document.getElementById('openAddModalBtn');
   const productModalClose = document.getElementById('productModalClose');
@@ -411,16 +321,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const pmImagePreview = document.getElementById('pmImagePreview');
   const pmDesc = document.getElementById('pmDesc');
   const pmSpecs = document.getElementById('pmSpecs');
+  let pmSelectedFile = null;
 
   if (pmFileInput) {
     pmFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
+        pmSelectedFile = file;
         const reader = new FileReader();
-        reader.onload = (evt) => {
-          if (pmImg) pmImg.value = evt.target.result;
-          if (pmImagePreview) pmImagePreview.src = evt.target.result;
-        };
+        reader.onload = (evt) => { if (pmImagePreview) pmImagePreview.src = evt.target.result; };
         reader.readAsDataURL(file);
       }
     });
@@ -430,83 +339,71 @@ document.addEventListener('DOMContentLoaded', () => {
     openAddModalBtn.addEventListener('click', () => {
       if (productForm) productForm.reset();
       if (pmId) pmId.value = '';
+      if (pmImg) pmImg.value = '';
+      pmSelectedFile = null;
       if (pmImagePreview) pmImagePreview.src = '../assets/products/wmf_topfset.jpg';
       if (productModal) productModal.classList.add('is-open');
     });
   }
+  if (productModalClose) productModalClose.addEventListener('click', () => { if (productModal) productModal.classList.remove('is-open'); });
 
-  if (productModalClose) productModalClose.addEventListener('click', () => {
-    if (productModal) productModal.classList.remove('is-open');
-  });
-
-  window.editProduct = function(id) {
-    const products = getStoredProducts();
-    const prod = products.find(p => p.id === id);
+  window.editProduct = function (id) {
+    const prod = currentProducts.find(p => p.id === id);
     if (prod && productModal) {
+      pmSelectedFile = null;
       if (pmId) pmId.value = prod.id;
       if (pmTitle) pmTitle.value = prod.title;
       if (pmBrand) pmBrand.value = prod.brand;
-      if (pmCategory) pmCategory.value = prod.category.split(' ')[0] || 'haushalt';
-      if (pmPrice) pmPrice.value = prod.price;
+      if (pmCategory) pmCategory.value = (prod.category || '').split(' ')[0] || 'haushalt';
+      if (pmPrice) pmPrice.value = priceInputValue(prod.priceRaw);
       if (pmStock) pmStock.value = prod.stock;
-      if (pmImg) pmImg.value = prod.img;
+      if (pmImg) pmImg.value = prod.img || '';
       if (pmDesc) pmDesc.value = prod.desc || '';
       if (pmSpecs) pmSpecs.value = prod.specs || '';
-
-      let previewVal = prod.img;
-      if (!previewVal.startsWith('../') && !previewVal.startsWith('http') && !previewVal.startsWith('data:')) previewVal = '../' + previewVal;
-      if (pmImagePreview) pmImagePreview.src = previewVal;
-
+      if (pmImagePreview) pmImagePreview.src = adminImgPath(prod.img);
       productModal.classList.add('is-open');
     }
   };
 
   if (productForm) {
-    productForm.addEventListener('submit', (e) => {
+    productForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const products = getStoredProducts();
-      const idVal = pmId.value;
+      const btn = productForm.querySelector('[type="submit"]');
+      const prev = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Speichern …'; }
+      try {
+        let imgVal = (pmImg.value || '').trim();
+        if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
+        if (pmSelectedFile) { imgVal = await LoeglAPI.uploadProductImage(pmSelectedFile); }
+        if (!imgVal) imgVal = 'assets/products/wmf_topfset.jpg';
 
-      let imgVal = pmImg.value.trim() || 'assets/products/wmf_topfset.jpg';
-      if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
-
-      if (idVal) {
-        const prod = products.find(p => p.id === idVal);
-        if (prod) {
-          prod.title = pmTitle.value.trim();
-          prod.brand = pmBrand.value.trim();
-          prod.category = `${pmCategory.value} ${pmBrand.value.toLowerCase().replace(/\s+/g, '')}`;
-          prod.price = pmPrice.value.trim();
-          prod.stock = parseInt(pmStock.value) || 0;
-          prod.img = imgVal;
-          prod.desc = pmDesc.value.trim();
-          prod.specs = pmSpecs.value.trim();
-        }
-      } else {
-        const newProd = {
-          id: `${pmBrand.value.toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`,
+        const idVal = pmId.value;
+        const existing = idVal ? currentProducts.find(p => p.id === idVal) : null;
+        await LoeglAPI.saveProduct({
+          id: idVal || undefined,
+          sku: existing ? existing.sku : null,
           title: pmTitle.value.trim(),
           brand: pmBrand.value.trim(),
           category: `${pmCategory.value} ${pmBrand.value.toLowerCase().replace(/\s+/g, '')}`,
-          price: pmPrice.value.trim(),
+          price: parsePrice(pmPrice.value),
           stock: parseInt(pmStock.value) || 0,
-          active: true,
+          active: existing ? existing.active : true,
           img: imgVal,
           desc: pmDesc.value.trim(),
           specs: pmSpecs.value.trim()
-        };
-        products.unshift(newProd);
+        });
+        if (productModal) productModal.classList.remove('is-open');
+        renderDashboard();
+      } catch (err) {
+        console.error('Produkt speichern fehlgeschlagen:', err);
+        alert('Das Produkt konnte nicht gespeichert werden: ' + (err.message || err));
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = prev; }
       }
-
-      saveStoredProducts(products);
-      if (productModal) productModal.classList.remove('is-open');
-      renderDashboard();
     });
   }
 
-  /* ---------------------------------------------------------
-     4. AKTION MODAL HANDLERS
-     --------------------------------------------------------- */
+  /* ---------------- AKTION-MODAL ---------------- */
   const aktionModal = document.getElementById('aktionModal');
   const openAddAktionModalBtn = document.getElementById('openAddAktionModalBtn');
   const aktionModalClose = document.getElementById('aktionModalClose');
@@ -521,16 +418,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const amImagePreview = document.getElementById('amImagePreview');
   const amDesc = document.getElementById('amDesc');
   const amBadge = document.getElementById('amBadge');
+  let amSelectedFile = null;
 
   if (amFileInput) {
     amFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
+        amSelectedFile = file;
         const reader = new FileReader();
-        reader.onload = (evt) => {
-          if (amImg) amImg.value = evt.target.result;
-          if (amImagePreview) amImagePreview.src = evt.target.result;
-        };
+        reader.onload = (evt) => { if (amImagePreview) amImagePreview.src = evt.target.result; };
         reader.readAsDataURL(file);
       }
     });
@@ -540,78 +436,121 @@ document.addEventListener('DOMContentLoaded', () => {
     openAddAktionModalBtn.addEventListener('click', () => {
       if (aktionForm) aktionForm.reset();
       if (amId) amId.value = '';
+      if (amImg) amImg.value = '';
+      amSelectedFile = null;
       if (amImagePreview) amImagePreview.src = '../assets/products/wmf_topfset.jpg';
       if (aktionModal) aktionModal.classList.add('is-open');
     });
   }
+  if (aktionModalClose) aktionModalClose.addEventListener('click', () => { if (aktionModal) aktionModal.classList.remove('is-open'); });
 
-  if (aktionModalClose) aktionModalClose.addEventListener('click', () => {
-    if (aktionModal) aktionModal.classList.remove('is-open');
-  });
-
-  window.editAktion = function(id) {
-    const aktionen = getStoredAktionen();
-    const akt = aktionen.find(a => a.id === id);
+  window.editAktion = function (id) {
+    const akt = currentAktionen.find(a => a.id === id);
     if (akt && aktionModal) {
+      amSelectedFile = null;
       if (amId) amId.value = akt.id;
       if (amTitle) amTitle.value = akt.title;
       if (amType) amType.value = akt.type;
-      if (amDate) amDate.value = akt.date;
-      if (amImg) amImg.value = akt.img;
-      if (amDesc) amDesc.value = akt.desc;
+      if (amDate) amDate.value = akt.date || '';
+      if (amImg) amImg.value = akt.img || '';
+      if (amDesc) amDesc.value = akt.desc || '';
       if (amBadge) amBadge.value = akt.badge || '';
-
-      let previewVal = akt.img;
-      if (!previewVal.startsWith('../') && !previewVal.startsWith('http') && !previewVal.startsWith('data:')) previewVal = '../' + previewVal;
-      if (amImagePreview) amImagePreview.src = previewVal;
-
+      if (amImagePreview) amImagePreview.src = adminImgPath(akt.img);
       aktionModal.classList.add('is-open');
     }
   };
 
   if (aktionForm) {
-    aktionForm.addEventListener('submit', (e) => {
+    aktionForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const aktionen = getStoredAktionen();
-      const idVal = amId.value;
+      const btn = aktionForm.querySelector('[type="submit"]');
+      const prev = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = 'Speichern …'; }
+      try {
+        let imgVal = (amImg.value || '').trim();
+        if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
+        if (amSelectedFile) { imgVal = await LoeglAPI.uploadProductImage(amSelectedFile); }
+        if (!imgVal) imgVal = 'assets/products/wmf_topfset.jpg';
 
-      let imgVal = amImg.value.trim() || 'assets/products/wmf_topfset.jpg';
-      if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
-
-      // Strip any emojis from user badge text
-      let cleanBadge = amBadge.value.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
-
-      if (idVal) {
-        const akt = aktionen.find(a => a.id === idVal);
-        if (akt) {
-          akt.title = amTitle.value.trim();
-          akt.type = amType.value;
-          akt.date = amDate.value.trim();
-          akt.img = imgVal;
-          akt.desc = amDesc.value.trim();
-          akt.badge = cleanBadge;
-        }
-      } else {
-        const newAkt = {
-          id: `AKT-${Math.floor(10 + Math.random() * 90)}`,
+        const cleanBadge = (amBadge.value || '').replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+        const idVal = amId.value;
+        const existing = idVal ? currentAktionen.find(a => a.id === idVal) : null;
+        await LoeglAPI.saveAktion({
+          id: idVal || undefined,
           title: amTitle.value.trim(),
           type: amType.value,
           date: amDate.value.trim(),
-          active: true,
+          active: existing ? existing.active : true,
           img: imgVal,
           desc: amDesc.value.trim(),
           badge: cleanBadge
-        };
-        aktionen.unshift(newAkt);
+        });
+        if (aktionModal) aktionModal.classList.remove('is-open');
+        renderAktionenDashboard();
+      } catch (err) {
+        console.error('Aktion speichern fehlgeschlagen:', err);
+        alert('Die Aktion konnte nicht gespeichert werden: ' + (err.message || err));
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = prev; }
       }
-
-      saveStoredAktionen(aktionen);
-      if (aktionModal) aktionModal.classList.remove('is-open');
-      renderAktionenDashboard();
     });
   }
 
-  // Init session check
-  checkSession();
+  /* ---------------- RESERVIERUNGEN ---------------- */
+  const reservationsBody = document.getElementById('reservationsBody');
 
+  async function renderReservations() {
+    if (!reservationsBody) return;
+    reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">Reservierungen werden geladen …</td></tr>`;
+    let list;
+    try { list = await LoeglAPI.getReservations(); }
+    catch (err) { console.error(err); reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:#c62828;">Reservierungen konnten nicht geladen werden.</td></tr>`; return; }
+
+    if (!list.length) {
+      reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">Noch keine Reservierungen.</td></tr>`;
+      return;
+    }
+    const statusColor = { offen: '#e0934a', abgeholt: '#2e7d32', storniert: '#c62828' };
+    reservationsBody.innerHTML = '';
+    list.forEach(r => {
+      const d = new Date(r.created_at);
+      const dateStr = d.toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong style="font-family: monospace; color: var(--gold-dark);">${r.pickup_code}</strong><br><span style="font-size:0.76rem;color:var(--ink-soft);">${dateStr}</span></td>
+        <td><strong style="color:var(--ink);">${r.product_title || '—'}</strong></td>
+        <td>
+          <strong style="color:var(--ink);">${r.customer_name}</strong><br>
+          <a href="tel:${r.customer_phone}" style="font-size:0.8rem;color:var(--ink-soft);">${r.customer_phone}</a><br>
+          <a href="mailto:${r.customer_email}" style="font-size:0.8rem;color:var(--ink-soft);">${r.customer_email}</a>
+        </td>
+        <td><span style="font-size:0.78rem;font-weight:700;color:${statusColor[r.status] || 'var(--ink-soft)'};text-transform:uppercase;">${r.status}</span></td>
+        <td style="text-align:right;">
+          <div style="display:flex;gap:0.4rem;justify-content:flex-end;flex-wrap:wrap;">
+            <button class="btn btn--ghost" style="padding:0.4em 0.7em;font-size:0.74rem;" onclick="setReservationStatus('${r.id}','abgeholt')">Abgeholt</button>
+            <button class="btn btn--ghost" style="padding:0.4em 0.7em;font-size:0.74rem;" onclick="setReservationStatus('${r.id}','offen')">Offen</button>
+            <button class="btn btn--ghost" style="padding:0.4em 0.7em;font-size:0.74rem;color:#c62828;border-color:rgba(198,40,40,0.25);" onclick="setReservationStatus('${r.id}','storniert')">Stornieren</button>
+          </div>
+        </td>
+      `;
+      reservationsBody.appendChild(tr);
+    });
+  }
+
+  window.setReservationStatus = async function (id, status) {
+    try { await LoeglAPI.setReservationStatus(id, status); renderReservations(); updateOpenReservationsKpi(); }
+    catch (err) { console.error(err); alert('Status konnte nicht geändert werden.'); }
+  };
+
+  async function updateOpenReservationsKpi() {
+    const el = document.getElementById('kpiOpenRes');
+    if (!el) return;
+    try {
+      const list = await LoeglAPI.getReservations();
+      el.textContent = list.filter(r => r.status === 'offen').length + ' Stk.';
+    } catch (e) { el.textContent = '–'; }
+  }
+
+  // Init
+  checkSession();
 });
