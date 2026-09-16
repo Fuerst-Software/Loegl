@@ -58,9 +58,58 @@
     };
   }
 
+  // ---- Automatische Bildaufbereitung ----
+  // Korrigiert EXIF-Drehung, passt das Bild verzerrungsfrei auf eine weiße
+  // Fläche im Zielformat ein (nichts wird abgeschnitten), verkleinert & komprimiert.
+  var IMG_PRESETS = {
+    product: { w: 1200, h: 900, quality: 0.85 },   // 4:3  (Produktkarten)
+    aktion:  { w: 1600, h: 900, quality: 0.85 }    // 16:9 (Aktions-Banner)
+  };
+  async function loadBitmap(file) {
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+      catch (e) { /* Fallback unten */ }
+    }
+    return await new Promise(function (res, rej) {
+      var img = new Image();
+      img.onload = function () { res(img); };
+      img.onerror = rej;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  async function processImage(file, kind) {
+    var preset = IMG_PRESETS[kind] || IMG_PRESETS.product;
+    if (!file || !/^image\//.test(file.type || '')) return file; // Nicht-Bilder unverändert lassen
+    var src;
+    try { src = await loadBitmap(file); } catch (e) { return file; }
+    var sw = src.width || src.naturalWidth, sh = src.height || src.naturalHeight;
+    if (!sw || !sh) return file;
+    var canvas = document.createElement('canvas');
+    canvas.width = preset.w; canvas.height = preset.h;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, preset.w, preset.h);
+    var scale = Math.min(preset.w / sw, preset.h / sh);      // "contain": nichts abschneiden, nicht verzerren
+    var dw = Math.round(sw * scale), dh = Math.round(sh * scale);
+    var dx = Math.round((preset.w - dw) / 2), dy = Math.round((preset.h - dh) / 2);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(src, dx, dy, dw, dh);
+    if (src.close) src.close();
+    var blob = await new Promise(function (res) { canvas.toBlob(res, 'image/jpeg', preset.quality); });
+    return blob || file;
+  }
+  async function uploadImage(blobOrFile) {
+    var path = 'products/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
+    var up = await client.storage.from('product-images').upload(path, blobOrFile, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
+    if (up.error) throw up.error;
+    return client.storage.from('product-images').getPublicUrl(path).data.publicUrl;
+  }
+
   window.LoeglAPI = {
     client: client,
     formatPrice: formatPrice,
+    processImage: processImage,
+    uploadImage: uploadImage,
 
     /* ============ ÖFFENTLICH ============ */
     getProducts: async function () {
@@ -146,14 +195,10 @@
       if (res.error) throw res.error;
     },
 
-    // Bild in Storage hochladen -> öffentliche URL zurück
-    uploadProductImage: async function (file) {
-      var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-      var path = 'products/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-      var up = await client.storage.from('product-images').upload(path, file, { cacheControl: '3600', upsert: false });
-      if (up.error) throw up.error;
-      var pub = client.storage.from('product-images').getPublicUrl(path);
-      return pub.data.publicUrl;
+    // Bild automatisch aufbereiten + in Storage hochladen -> öffentliche URL zurück
+    uploadProductImage: async function (file, kind) {
+      var processed = await processImage(file, kind || 'product');
+      return uploadImage(processed);
     }
   };
 })();

@@ -321,16 +321,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const pmImagePreview = document.getElementById('pmImagePreview');
   const pmDesc = document.getElementById('pmDesc');
   const pmSpecs = document.getElementById('pmSpecs');
-  let pmSelectedFile = null;
+  let pmProcessedBlob = null;
 
   if (pmFileInput) {
-    pmFileInput.addEventListener('change', (e) => {
+    pmFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
-      if (file) {
-        pmSelectedFile = file;
+      if (!file) return;
+      pmProcessedBlob = null;
+      if (pmImagePreview) pmImagePreview.style.opacity = '0.5';
+      try {
+        const blob = await LoeglAPI.processImage(file, 'product');
+        pmProcessedBlob = blob;
+        if (pmImagePreview) pmImagePreview.src = URL.createObjectURL(blob);
+      } catch (err) {
+        console.error('Bildaufbereitung fehlgeschlagen:', err);
+        pmProcessedBlob = file;
         const reader = new FileReader();
         reader.onload = (evt) => { if (pmImagePreview) pmImagePreview.src = evt.target.result; };
         reader.readAsDataURL(file);
+      } finally {
+        if (pmImagePreview) pmImagePreview.style.opacity = '1';
       }
     });
   }
@@ -340,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (productForm) productForm.reset();
       if (pmId) pmId.value = '';
       if (pmImg) pmImg.value = '';
-      pmSelectedFile = null;
+      pmProcessedBlob = null;
       if (pmImagePreview) pmImagePreview.src = '../assets/products/wmf_topfset.jpg';
       if (productModal) productModal.classList.add('is-open');
     });
@@ -350,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.editProduct = function (id) {
     const prod = currentProducts.find(p => p.id === id);
     if (prod && productModal) {
-      pmSelectedFile = null;
+      pmProcessedBlob = null;
       if (pmId) pmId.value = prod.id;
       if (pmTitle) pmTitle.value = prod.title;
       if (pmBrand) pmBrand.value = prod.brand;
@@ -374,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         let imgVal = (pmImg.value || '').trim();
         if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
-        if (pmSelectedFile) { imgVal = await LoeglAPI.uploadProductImage(pmSelectedFile); }
+        if (pmProcessedBlob) { imgVal = await LoeglAPI.uploadImage(pmProcessedBlob); }
         if (!imgVal) imgVal = 'assets/products/wmf_topfset.jpg';
 
         const idVal = pmId.value;
@@ -418,16 +428,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const amImagePreview = document.getElementById('amImagePreview');
   const amDesc = document.getElementById('amDesc');
   const amBadge = document.getElementById('amBadge');
-  let amSelectedFile = null;
+  let amProcessedBlob = null;
 
   if (amFileInput) {
-    amFileInput.addEventListener('change', (e) => {
+    amFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
-      if (file) {
-        amSelectedFile = file;
+      if (!file) return;
+      amProcessedBlob = null;
+      if (amImagePreview) amImagePreview.style.opacity = '0.5';
+      try {
+        const blob = await LoeglAPI.processImage(file, 'aktion');
+        amProcessedBlob = blob;
+        if (amImagePreview) amImagePreview.src = URL.createObjectURL(blob);
+      } catch (err) {
+        console.error('Bildaufbereitung fehlgeschlagen:', err);
+        amProcessedBlob = file;
         const reader = new FileReader();
         reader.onload = (evt) => { if (amImagePreview) amImagePreview.src = evt.target.result; };
         reader.readAsDataURL(file);
+      } finally {
+        if (amImagePreview) amImagePreview.style.opacity = '1';
       }
     });
   }
@@ -437,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (aktionForm) aktionForm.reset();
       if (amId) amId.value = '';
       if (amImg) amImg.value = '';
-      amSelectedFile = null;
+      amProcessedBlob = null;
       if (amImagePreview) amImagePreview.src = '../assets/products/wmf_topfset.jpg';
       if (aktionModal) aktionModal.classList.add('is-open');
     });
@@ -447,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.editAktion = function (id) {
     const akt = currentAktionen.find(a => a.id === id);
     if (akt && aktionModal) {
-      amSelectedFile = null;
+      amProcessedBlob = null;
       if (amId) amId.value = akt.id;
       if (amTitle) amTitle.value = akt.title;
       if (amType) amType.value = akt.type;
@@ -469,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         let imgVal = (amImg.value || '').trim();
         if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
-        if (amSelectedFile) { imgVal = await LoeglAPI.uploadProductImage(amSelectedFile); }
+        if (amProcessedBlob) { imgVal = await LoeglAPI.uploadImage(amProcessedBlob); }
         if (!imgVal) imgVal = 'assets/products/wmf_topfset.jpg';
 
         const cleanBadge = (amBadge.value || '').replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
