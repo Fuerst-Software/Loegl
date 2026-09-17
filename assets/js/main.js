@@ -117,6 +117,22 @@ function getShopAktionen() {
   } catch (e) { return DEFAULT_AKTIONEN; }
 }
 
+/* Preisdarstellung: UVP klein & durchgestrichen oben, Aktionspreis groß & hervorgehoben (Blickfang) */
+function loeglPriceStack(uvp, sale, bigSize) {
+  bigSize = bigSize || '1.5rem';
+  if (sale && String(sale).trim()) {
+    return '<span style="font-size:0.78rem;color:var(--ink-soft);text-decoration:line-through;display:block;line-height:1.2;">UVP ' + uvp + '</span>'
+         + '<strong style="font-family:var(--serif);font-size:' + bigSize + ';color:var(--gold-dark);display:block;line-height:1.2;">' + sale + '</strong>';
+  }
+  return '<strong style="font-family:var(--serif);font-size:' + bigSize + ';color:var(--ink);">' + uvp + '</strong>';
+}
+function loeglPriceInline(uvp, sale) {
+  if (sale && String(sale).trim()) {
+    return '<span style="text-decoration:line-through;color:var(--ink-soft);font-weight:400;font-size:0.85em;">' + uvp + '</span> <strong style="color:var(--gold-dark);">' + sale + '</strong>';
+  }
+  return uvp;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------------------------------------------------------
@@ -292,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const reserveBtnHtml = inStock
           ? `<button type="button" class="btn btn--primary reserve-btn" style="padding: 0.55em 0.4em; font-size: 0.78rem;"
-              data-id="${prod.id}" data-title="${prod.title}" data-brand="${prod.brand}" data-price="${prod.price}" data-img="${prod.img}">
+              data-id="${prod.id}" data-title="${prod.title}" data-brand="${prod.brand}" data-price="${prod.price}" data-sale="${prod.salePrice || ''}" data-img="${prod.img}">
               <span>Reservieren</span>
             </button>`
           : `<button type="button" class="btn btn--ghost" style="padding: 0.55em 0.4em; font-size: 0.78rem; opacity: 0.5; cursor: not-allowed;" disabled>
@@ -311,13 +327,13 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3 class="prod-card__title">${prod.title}</h3>
             <p class="prod-card__desc">${prod.desc || ''}</p>
             <div style="margin-top: auto; padding-top: 0.8rem; border-top: 1px solid var(--line);">
-              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.8rem;">
-                <span style="font-size: 0.72rem; color: var(--ink-soft);">UVP Preis</span>
-                <strong style="font-family: var(--serif); font-size: 1.4rem; color: var(--ink);">${prod.price}</strong>
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 0.8rem; gap: 0.5rem;">
+                <span style="font-size: 0.72rem; color: var(--ink-soft);">${prod.salePrice ? 'Aktionspreis' : 'Preis'}</span>
+                <div style="text-align: right;">${loeglPriceStack(prod.price, prod.salePrice, '1.5rem')}</div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
                 <button type="button" class="btn btn--ghost info-btn" style="padding: 0.55em 0.4em; font-size: 0.78rem;"
-                  data-id="${prod.id}" data-title="${prod.title}" data-brand="${prod.brand}" data-price="${prod.price}" data-img="${prod.img}" data-desc="${prod.desc || ''}" data-specs="${prod.specs || ''}">
+                  data-id="${prod.id}" data-title="${prod.title}" data-brand="${prod.brand}" data-price="${prod.price}" data-sale="${prod.salePrice || ''}" data-img="${prod.img}" data-desc="${prod.desc || ''}" data-specs="${prod.specs || ''}">
                   <span>Mehr Infos</span>
                 </button>
                 ${reserveBtnHtml}
@@ -493,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ccProductImg) ccProductImg.src = prodData.img;
     if (ccProductTitle) ccProductTitle.textContent = prodData.title;
     if (ccProductBrand) ccProductBrand.textContent = prodData.brand;
-    if (ccProductPrice) ccProductPrice.textContent = prodData.price;
+    if (ccProductPrice) ccProductPrice.innerHTML = loeglPriceInline(prodData.price, prodData.sale);
 
     if (ccForm) ccForm.reset();
     if (ccStepForm) ccStepForm.style.display = 'block';
@@ -508,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (infoModalImg) infoModalImg.src = prodData.img;
     if (infoModalBrand) infoModalBrand.textContent = prodData.brand;
     if (infoModalTitle) infoModalTitle.textContent = prodData.title;
-    if (infoModalPrice) infoModalPrice.textContent = prodData.price;
+    if (infoModalPrice) infoModalPrice.innerHTML = loeglPriceInline(prodData.price, prodData.sale);
     if (infoModalDesc) infoModalDesc.textContent = prodData.desc || 'Keine ausführliche Beschreibung verfügbar.';
     if (infoModalSpecs) infoModalSpecs.textContent = prodData.specs || 'Keine zusätzlichen Spezifikationen.';
 
@@ -524,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title: reserveBtn.dataset.title,
         brand: reserveBtn.dataset.brand,
         price: reserveBtn.dataset.price,
+        sale: reserveBtn.dataset.sale,
         img: reserveBtn.dataset.img
       };
       openReservationModal(prodData);
@@ -537,6 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         title: infoBtn.dataset.title,
         brand: infoBtn.dataset.brand,
         price: infoBtn.dataset.price,
+        sale: infoBtn.dataset.sale,
         img: infoBtn.dataset.img,
         desc: infoBtn.dataset.desc,
         specs: infoBtn.dataset.specs

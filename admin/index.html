@@ -281,12 +281,18 @@
         <div class="admin-grid-2col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem;">
           <div>
             <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Preis (€ UVP) *</label>
-            <input type="text" id="pmPrice" class="admin-input-luxury" required placeholder="249,00 €" />
+            <input type="text" id="pmPrice" class="admin-input-luxury" required placeholder="249,00" />
           </div>
           <div>
-            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Lagerbestand (Stk.) *</label>
-            <input type="number" id="pmStock" class="admin-input-luxury" required min="0" value="5" />
+            <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Aktionspreis (€)</label>
+            <input type="text" id="pmSalePrice" class="admin-input-luxury" placeholder="z. B. 199,00" />
+            <span style="font-size: 0.72rem; color: var(--ink-soft); display: block; margin-top: 0.3rem;">Leer lassen, wenn es keinen Aktionspreis gibt.</span>
           </div>
+        </div>
+
+        <div style="margin-bottom: 1.2rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Lagerbestand (Stk.) *</label>
+          <input type="number" id="pmStock" class="admin-input-luxury" required min="0" value="5" style="max-width: 220px;" />
         </div>
 
         <div style="margin-bottom: 1.4rem;">

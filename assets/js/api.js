@@ -27,14 +27,17 @@
 
   // ---- DB-Zeile -> Objekt in der Form, die das Frontend erwartet ----
   function normProduct(r) {
+    var hasSale = r.sale_price != null && Number(r.sale_price) > 0 && Number(r.sale_price) < Number(r.price);
     return {
       id: r.id,
       sku: r.sku,
       title: r.title,
       brand: r.brand,
       category: r.category,
-      price: formatPrice(r.price),   // formatiert für Anzeige
-      priceRaw: r.price,             // Zahl für Formulare
+      price: formatPrice(r.price),   // UVP, formatiert für Anzeige
+      priceRaw: r.price,             // UVP als Zahl (für Formulare)
+      salePrice: hasSale ? formatPrice(r.sale_price) : '',   // Aktionspreis formatiert ('' = keiner)
+      salePriceRaw: hasSale ? r.sale_price : null,           // Aktionspreis als Zahl (bzw. null)
       stock: r.stock,
       active: r.active,
       img: r.img,
@@ -146,9 +149,10 @@
     },
     saveProduct: async function (p) {
       // p: {id?, sku, title, brand, category, price(number), stock, active, img, desc, specs}
+      var saleVal = (p.sale_price === '' || p.sale_price == null || isNaN(p.sale_price)) ? null : Number(p.sale_price);
       var row = {
         sku: p.sku || null, title: p.title, brand: p.brand, category: p.category,
-        price: p.price, stock: p.stock, active: p.active, img: p.img,
+        price: p.price, sale_price: saleVal, stock: p.stock, active: p.active, img: p.img,
         description: p.desc, specs: p.specs
       };
       var q = p.id

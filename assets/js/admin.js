@@ -155,7 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <strong style="color: var(--gold-dark); font-size: 0.85rem; text-transform: uppercase;">${prod.brand || ''}</strong><br />
           <span style="font-size: 0.8rem; color: var(--ink-soft);">${prod.category || ''}</span>
         </td>
-        <td><strong style="font-family: var(--serif); font-size: 1.2rem; color: var(--ink);">${prod.price}</strong></td>
+        <td>${prod.salePrice
+          ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;">${prod.price}</span><strong style="font-family: var(--serif); font-size: 1.2rem; color: var(--gold-dark);">${prod.salePrice}</strong>`
+          : `<strong style="font-family: var(--serif); font-size: 1.2rem; color: var(--ink);">${prod.price}</strong>`}</td>
         <td>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <button class="stock-btn" onclick="adjustStock('${prod.id}', -1)">-</button>
@@ -192,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!prod) return;
     const newStock = Math.max(0, (prod.stock || 0) + delta);
     try {
-      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, stock: newStock, active: prod.active, img: prod.img, desc: prod.desc, specs: prod.specs });
+      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, sale_price: prod.salePriceRaw, stock: newStock, active: prod.active, img: prod.img, desc: prod.desc, specs: prod.specs });
       prod.stock = newStock;
       renderDashboard();
     } catch (err) { console.error(err); alert('Lagerbestand konnte nicht gespeichert werden.'); }
@@ -202,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prod = currentProducts.find(p => p.id === id);
     if (!prod) return;
     try {
-      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, stock: prod.stock, active: state, img: prod.img, desc: prod.desc, specs: prod.specs });
+      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, sale_price: prod.salePriceRaw, stock: prod.stock, active: state, img: prod.img, desc: prod.desc, specs: prod.specs });
       renderDashboard();
     } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); renderDashboard(); }
   };
@@ -315,6 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pmBrand = document.getElementById('pmBrand');
   const pmCategory = document.getElementById('pmCategory');
   const pmPrice = document.getElementById('pmPrice');
+  const pmSalePrice = document.getElementById('pmSalePrice');
   const pmStock = document.getElementById('pmStock');
   const pmImg = document.getElementById('pmImg');
   const pmFileInput = document.getElementById('pmFileInput');
@@ -366,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pmBrand) pmBrand.value = prod.brand;
       if (pmCategory) pmCategory.value = (prod.category || '').split(' ')[0] || 'haushalt';
       if (pmPrice) pmPrice.value = priceInputValue(prod.priceRaw);
+      if (pmSalePrice) pmSalePrice.value = (prod.salePriceRaw != null) ? priceInputValue(prod.salePriceRaw) : '';
       if (pmStock) pmStock.value = prod.stock;
       if (pmImg) pmImg.value = prod.img || '';
       if (pmDesc) pmDesc.value = prod.desc || '';
@@ -396,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
           brand: pmBrand.value.trim(),
           category: `${pmCategory.value} ${pmBrand.value.toLowerCase().replace(/\s+/g, '')}`,
           price: parsePrice(pmPrice.value),
+          sale_price: pmSalePrice.value.trim() ? parsePrice(pmSalePrice.value) : null,
           stock: parseInt(pmStock.value) || 0,
           active: existing ? existing.active : true,
           img: imgVal,
