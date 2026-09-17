@@ -564,7 +564,6 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const name = document.getElementById('ccName').value.trim();
       const phone = document.getElementById('ccPhone').value.trim();
-      const email = document.getElementById('ccEmail').value.trim();
 
       if (!currentTargetProduct || !currentTargetProduct.id) return;
 
@@ -575,10 +574,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<span>Wird reserviert …</span>'; }
 
       try {
-        const result = await LoeglAPI.createReservation(currentTargetProduct.id, name, phone, email);
+        const result = await LoeglAPI.createReservation(currentTargetProduct.id, name, phone);
 
         document.getElementById('succName').textContent = name;
-        document.getElementById('succCode').textContent = result.pickup_code;
         document.getElementById('succTitle').textContent = result.product_title || currentTargetProduct.title;
 
         ccStepForm.style.display = 'none';

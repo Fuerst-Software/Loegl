@@ -537,12 +537,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const dateStr = d.toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong style="font-family: monospace; color: var(--gold-dark);">${r.pickup_code}</strong><br><span style="font-size:0.76rem;color:var(--ink-soft);">${dateStr}</span></td>
+        <td><span style="font-size:0.85rem;color:var(--ink);font-weight:600;">${dateStr}</span></td>
         <td><strong style="color:var(--ink);">${r.product_title || '—'}</strong></td>
         <td>
-          <strong style="color:var(--ink);">${r.customer_name}</strong><br>
-          <a href="tel:${r.customer_phone}" style="font-size:0.8rem;color:var(--ink-soft);">${r.customer_phone}</a><br>
-          <a href="mailto:${r.customer_email}" style="font-size:0.8rem;color:var(--ink-soft);">${r.customer_email}</a>
+          <strong style="color:var(--ink);font-size:0.98rem;">${r.customer_name}</strong><br>
+          <a href="tel:${r.customer_phone}" style="font-size:0.8rem;color:var(--ink-soft);">${r.customer_phone}</a>
+          ${r.customer_email ? `<br><a href="mailto:${r.customer_email}" style="font-size:0.8rem;color:var(--ink-soft);">${r.customer_email}</a>` : ''}
         </td>
         <td><span style="font-size:0.78rem;font-weight:700;color:${statusColor[r.status] || 'var(--ink-soft)'};text-transform:uppercase;">${r.status}</span></td>
         <td style="text-align:right;">

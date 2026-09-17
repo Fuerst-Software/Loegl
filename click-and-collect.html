@@ -201,12 +201,9 @@
             </label>
           </div>
 
-          <label class="field">
-            <span>E-Mail-Adresse *</span>
-            <input type="email" id="ccEmail" required placeholder="name@beispiel.at" />
-          </label>
-
-
+          <p style="font-size: 0.82rem; color: var(--ink-soft); margin: 0.2rem 0 1.2rem; line-height: 1.5;">
+            Ihre Reservierung wird auf Ihren Namen hinterlegt – bei der Abholung im Geschäft genügt die Nennung Ihres Namens.
+          </p>
 
           <button type="submit" class="btn btn--gold btn--wide">
             <span>Jetzt verbindlich reservieren</span>
@@ -220,30 +217,30 @@
         <div style="width: 60px; height: 60px; border-radius: 50%; background: #e8f5e9; color: #2e7d32; display: grid; place-items: center; margin: 0 auto 1.2rem;">
           <svg class="icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </div>
-        <span class="eyebrow eyebrow--dark">Reservierung Erfolgreich!</span>
-        <h2 style="font-family: var(--serif); font-size: 2rem; margin: 0 0 0.5rem; color: var(--ink);">Artikel liegt für Sie bereit.</h2>
+        <span class="eyebrow eyebrow--dark">Reservierung erfolgreich</span>
+        <h2 style="font-family: var(--serif); font-size: 2rem; margin: 0 0 0.5rem; color: var(--ink);">Für Sie hinterlegt.</h2>
         <p style="color: var(--ink-soft); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
-          Vielen Dank, <strong id="succName">Kunde</strong>! Ihr Artikel wurde soeben für Sie im Fachgeschäft in Mattsee hinterlegt.
+          Vielen Dank! Ihre Reservierung wurde auf den Namen <strong id="succName" style="color: var(--gold-dark);">Kunde</strong> im Fachgeschäft in Mattsee hinterlegt. Wir legen den Artikel für Sie zur Seite.
         </p>
 
-        <div style="background: var(--paper); border: 2px dashed var(--line-gold); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: left;">
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem;">
-            <span>Reservierungs-Code</span>
-            <strong id="succCode" style="color: var(--gold-dark); font-family: monospace; font-size: 1.1rem;">LÖGL-CC-94821</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem;">
+        <div style="background: var(--paper); border: 2px dashed var(--line-gold); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.2rem; text-align: left;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem; gap: 1rem;">
             <span>Reservierter Artikel</span>
-            <strong id="succTitle" style="color: var(--ink);">Artikel Name</strong>
+            <strong id="succTitle" style="color: var(--ink); text-align: right;">Artikel Name</strong>
           </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 0.5rem; gap: 1rem;">
             <span>Abholort</span>
-            <strong style="color: var(--ink);">Passauer Straße 6, 5163 Mattsee</strong>
+            <strong style="color: var(--ink); text-align: right;">Passauer Straße 6, 5163 Mattsee</strong>
           </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft);">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); gap: 1rem;">
             <span>Bezahlung vor Ort</span>
-            <strong style="color: #2e7d32;">Bar- oder Kartenzahlung im Laden</strong>
+            <strong style="color: #2e7d32; text-align: right;">Bar- oder Kartenzahlung im Laden</strong>
           </div>
         </div>
+
+        <p style="font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 1.5rem; line-height: 1.55;">
+          Bitte nennen Sie bei der Abholung einfach Ihren Namen – wir finden Ihre Reservierung sofort.
+        </p>
 
         <button type="button" class="btn btn--primary" id="ccFinishBtn">
           <span>Verstanden &amp; Schließen</span>

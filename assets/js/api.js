@@ -124,13 +124,13 @@
       return res.data.map(normAktion);
     },
 
-    // Atomare Reservierung über die DB-Funktion (prüft Lager, zieht ab, gibt Code zurück)
-    createReservation: async function (productId, name, phone, email) {
+    // Atomare Reservierung über die DB-Funktion (prüft Lager, zieht ab) – nur Name + Telefon
+    createReservation: async function (productId, name, phone) {
       var res = await client.rpc('create_reservation', {
-        p_product_id: productId, p_name: name, p_phone: phone, p_email: email
+        p_product_id: productId, p_name: name, p_phone: phone
       });
       if (res.error) throw res.error;
-      return Array.isArray(res.data) ? res.data[0] : res.data; // { pickup_code, product_title }
+      return Array.isArray(res.data) ? res.data[0] : res.data; // { product_title }
     },
 
     /* ============ ADMIN (nur eingeloggt) ============ */
