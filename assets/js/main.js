@@ -159,6 +159,72 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 100);
 
   /* ---------------------------------------------------------
+     0b. Hero Slideshow (Diashow)
+     --------------------------------------------------------- */
+  (function initSlideshow() {
+    const box = document.getElementById('heroSlideshow');
+    if (!box) return;
+
+    const slides = Array.from(box.querySelectorAll('.slide'));
+    if (slides.length < 2) return;
+
+    const dotsWrap = box.querySelector('.slideshow__dots');
+    const prevBtn = box.querySelector('.slideshow__arrow--prev');
+    const nextBtn = box.querySelector('.slideshow__arrow--next');
+    const INTERVAL = 3000;
+
+    let current = slides.findIndex(s => s.classList.contains('is-active'));
+    if (current < 0) current = 0;
+    let timer = null;
+
+    // Build navigation dots
+    const dots = slides.map((_, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'slideshow__dot' + (i === current ? ' is-active' : '');
+      dot.setAttribute('role', 'tab');
+      dot.setAttribute('aria-label', `Bild ${i + 1} von ${slides.length}`);
+      dot.addEventListener('click', () => { goTo(i); restart(); });
+      if (dotsWrap) dotsWrap.appendChild(dot);
+      return dot;
+    });
+
+    function goTo(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle('is-active', i === current));
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === current));
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    function start() {
+      stop(); // guard against stacking multiple intervals
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+      timer = setInterval(next, INTERVAL);
+    }
+    function restart() { stop(); start(); }
+
+    if (nextBtn) nextBtn.addEventListener('click', () => { next(); restart(); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { prev(); restart(); });
+
+    // Pause on hover / focus, resume on leave
+    box.addEventListener('mouseenter', stop);
+    box.addEventListener('mouseleave', start);
+    box.addEventListener('focusin', stop);
+    box.addEventListener('focusout', start);
+
+    // Pause when tab is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else restart();
+    });
+
+    start();
+  })();
+
+  /* ---------------------------------------------------------
      1. Live Opening Hours Calculator
      --------------------------------------------------------- */
   function updateLiveStatus() {
