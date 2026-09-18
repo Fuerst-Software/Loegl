@@ -119,7 +119,7 @@ function getShopAktionen() {
 
 /* Preisdarstellung: UVP klein & durchgestrichen oben, Aktionspreis groß & hervorgehoben (Blickfang).
    Klare, gut lesbare Schrift (Plus Jakarta Sans) mit tabellarischen Ziffern. */
-var LOEGL_NUM = 'font-family:var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-0.01em;';
+var LOEGL_NUM = 'font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;';
 function loeglPriceStack(uvp, sale, bigSize) {
   bigSize = bigSize || '1.5rem';
   if (sale && String(sale).trim()) {
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="margin-top: auto; padding-top: 0.8rem; border-top: 1px solid var(--line);">
               <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 0.8rem; gap: 0.5rem;">
                 <span style="font-size: 0.72rem; color: var(--ink-soft);">${prod.salePrice ? 'Aktionspreis' : 'Preis'}</span>
-                <div style="text-align: right;">${loeglPriceStack(prod.price, prod.salePrice, '1.5rem')}</div>
+                <div style="text-align: right;">${loeglPriceStack(prod.price, prod.salePrice, '1.3rem')}</div>
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
                 <button type="button" class="btn btn--ghost info-btn" style="padding: 0.55em 0.4em; font-size: 0.78rem;"
@@ -697,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderInfoGallery();
     if (infoModalBrand) infoModalBrand.textContent = prodData.brand;
     if (infoModalTitle) infoModalTitle.textContent = prodData.title;
-    if (infoModalPrice) infoModalPrice.innerHTML = loeglPriceStack(prodData.price, prodData.sale, '1.9rem');
+    if (infoModalPrice) infoModalPrice.innerHTML = loeglPriceStack(prodData.price, prodData.sale, '1.6rem');
     if (infoModalDesc) infoModalDesc.textContent = prodData.desc || 'Keine ausführliche Beschreibung verfügbar.';
     if (infoModalSpecs) infoModalSpecs.textContent = prodData.specs || 'Keine zusätzlichen Spezifikationen.';
 
