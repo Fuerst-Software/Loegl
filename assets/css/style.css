@@ -506,7 +506,7 @@ body.glightbox-open { overflow: hidden; }
 
 .prod-card--compact { padding: 0; }
 .prod-card--compact .prod-card__img {
-  aspect-ratio: 4 / 3; max-height: 190px; background: var(--paper); overflow: hidden; position: relative;
+  aspect-ratio: 4 / 3; max-height: 190px; background: #fff; overflow: hidden; position: relative;
   border-bottom: 1px solid var(--line);
 }
 .prod-card--compact .prod-card__img img {
@@ -608,7 +608,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .pm-thumb--loading { display: grid; place-items: center; font-size: 0.7rem; color: var(--ink-soft); text-align: center; }
 
 /* ---------- PRODUKT-DETAIL-GALERIE (Info-Modal) ---------- */
-.pg__main { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--paper); aspect-ratio: 4 / 3; cursor: zoom-in; }
+.pg__main { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #fff; aspect-ratio: 4 / 3; cursor: zoom-in; }
 .pg__main img { width: 100%; height: 100%; object-fit: contain; padding: 0.8rem; display: block; }
 .pg__arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.9); color: var(--ink); display: grid; place-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.18); opacity: 0; transition: opacity 0.25s var(--ease); z-index: 2; }
 .pg__main:hover .pg__arrow { opacity: 1; }
