@@ -296,19 +296,14 @@
         </div>
 
         <div style="margin-bottom: 1.4rem;">
-          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Produktbild (Upload &amp; Vorschau) *</label>
-          <div class="admin-grid-upload" style="display: grid; grid-template-columns: 1fr 140px; gap: 1.2rem;">
-            <div>
-              <div class="file-dropzone">
-                <input type="file" id="pmFileInput" accept="image/*" />
-                <strong style="display: block; font-size: 0.88rem; color: var(--ink);">Bilddatei wählen</strong>
-              </div>
-              <input type="text" id="pmImg" class="admin-input-luxury" placeholder="oder Pfad: assets/products/wmf_topfset.jpg" style="margin-top: 0.6rem; font-size: 0.82rem;" />
-            </div>
-            <div style="border: 1px solid var(--line); border-radius: 10px; background: var(--paper); padding: 0.5rem; text-align: center;">
-              <img id="pmImagePreview" src="../assets/products/wmf_topfset.jpg" alt="Vorschau" style="width: 100%; aspect-ratio: 1 / 1; object-fit: contain; background: #fff;" />
-            </div>
+          <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Produktbilder (mehrere möglich) *</label>
+          <div class="file-dropzone">
+            <input type="file" id="pmFileInput" accept="image/*" multiple />
+            <strong style="display: block; font-size: 0.88rem; color: var(--ink);">Bilder wählen (auch mehrere gleichzeitig)</strong>
           </div>
+          <p style="font-size: 0.72rem; color: var(--ink-soft); margin: 0.5rem 0 0; line-height: 1.5;">Egal welches Format oder welche Größe – jedes Bild wird automatisch perfekt zugeschnitten. Klicken Sie <strong>★</strong> auf einem Bild, um es als <strong>Hauptbild</strong> (Titelbild) festzulegen.</p>
+          <div id="pmThumbs" class="pm-thumbs"></div>
+          <input type="hidden" id="pmImg" />
         </div>
 
         <div style="margin-bottom: 1.2rem;">

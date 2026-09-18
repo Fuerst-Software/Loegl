@@ -41,6 +41,7 @@
       stock: r.stock,
       active: r.active,
       img: r.img,
+      images: (Array.isArray(r.images) && r.images.length) ? r.images : (r.img ? [r.img] : []),
       desc: r.description,
       specs: r.specs
     };
@@ -153,6 +154,7 @@
       var row = {
         sku: p.sku || null, title: p.title, brand: p.brand, category: p.category,
         price: p.price, sale_price: saleVal, stock: p.stock, active: p.active, img: p.img,
+        images: Array.isArray(p.images) ? p.images : [],
         description: p.desc, specs: p.specs
       };
       var q = p.id

@@ -321,30 +321,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const pmStock = document.getElementById('pmStock');
   const pmImg = document.getElementById('pmImg');
   const pmFileInput = document.getElementById('pmFileInput');
-  const pmImagePreview = document.getElementById('pmImagePreview');
+  const pmThumbs = document.getElementById('pmThumbs');
   const pmDesc = document.getElementById('pmDesc');
   const pmSpecs = document.getElementById('pmSpecs');
-  let pmProcessedBlob = null;
+
+  // Bild-Galerie-Zustand des Produkt-Formulars
+  let pmImages = [];    // alle Bild-URLs (Reihenfolge)
+  let pmMainImg = '';   // gewähltes Hauptbild (Titelbild)
+
+  function renderPmThumbs() {
+    if (!pmThumbs) return;
+    pmThumbs.innerHTML = '';
+    if (!pmImages.length) {
+      pmThumbs.innerHTML = '<p style="font-size:0.78rem;color:var(--ink-soft);margin:0.6rem 0 0;">Noch keine Bilder – bitte oben auswählen.</p>';
+      return;
+    }
+    pmImages.forEach((url) => {
+      const isMain = (url === pmMainImg);
+      const div = document.createElement('div');
+      div.className = 'pm-thumb' + (isMain ? ' is-main' : '');
+      div.innerHTML =
+        (isMain ? '<span class="pm-thumb__badge">Hauptbild</span>' : '') +
+        '<img src="' + adminImgPath(url) + '" alt="" />' +
+        '<div class="pm-thumb__btns">' +
+        '<button type="button" class="pm-thumb__btn" title="Als Hauptbild festlegen">★</button>' +
+        '<button type="button" class="pm-thumb__btn pm-thumb__btn--del" title="Bild entfernen">✕</button>' +
+        '</div>';
+      const b = div.querySelectorAll('.pm-thumb__btn');
+      b[0].addEventListener('click', () => { pmMainImg = url; renderPmThumbs(); });
+      b[1].addEventListener('click', () => {
+        pmImages = pmImages.filter((u) => u !== url);
+        if (pmMainImg === url) pmMainImg = pmImages[0] || '';
+        renderPmThumbs();
+      });
+      pmThumbs.appendChild(div);
+    });
+  }
 
   if (pmFileInput) {
     pmFileInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      pmProcessedBlob = null;
-      if (pmImagePreview) pmImagePreview.style.opacity = '0.5';
-      try {
-        const blob = await LoeglAPI.processImage(file, 'product');
-        pmProcessedBlob = blob;
-        if (pmImagePreview) pmImagePreview.src = URL.createObjectURL(blob);
-      } catch (err) {
-        console.error('Bildaufbereitung fehlgeschlagen:', err);
-        pmProcessedBlob = file;
-        const reader = new FileReader();
-        reader.onload = (evt) => { if (pmImagePreview) pmImagePreview.src = evt.target.result; };
-        reader.readAsDataURL(file);
-      } finally {
-        if (pmImagePreview) pmImagePreview.style.opacity = '1';
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      for (const file of files) {
+        let ph = null;
+        if (pmThumbs) { ph = document.createElement('div'); ph.className = 'pm-thumb pm-thumb--loading'; ph.textContent = 'lädt …'; pmThumbs.appendChild(ph); }
+        try {
+          const blob = await LoeglAPI.processImage(file, 'product');
+          const url = await LoeglAPI.uploadImage(blob);
+          pmImages.push(url);
+          if (!pmMainImg) pmMainImg = url;
+        } catch (err) {
+          console.error('Bild-Upload fehlgeschlagen:', err);
+          alert('Ein Bild konnte nicht hochgeladen werden: ' + (err.message || err));
+        }
+        if (ph) ph.remove();
+        renderPmThumbs();
       }
+      e.target.value = '';
     });
   }
 
@@ -352,9 +385,9 @@ document.addEventListener('DOMContentLoaded', () => {
     openAddModalBtn.addEventListener('click', () => {
       if (productForm) productForm.reset();
       if (pmId) pmId.value = '';
-      if (pmImg) pmImg.value = '';
-      pmProcessedBlob = null;
-      if (pmImagePreview) pmImagePreview.src = '../assets/products/wmf_topfset.jpg';
+      pmImages = [];
+      pmMainImg = '';
+      renderPmThumbs();
       if (productModal) productModal.classList.add('is-open');
     });
   }
@@ -363,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.editProduct = function (id) {
     const prod = currentProducts.find(p => p.id === id);
     if (prod && productModal) {
-      pmProcessedBlob = null;
       if (pmId) pmId.value = prod.id;
       if (pmTitle) pmTitle.value = prod.title;
       if (pmBrand) pmBrand.value = prod.brand;
@@ -371,10 +403,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pmPrice) pmPrice.value = priceInputValue(prod.priceRaw);
       if (pmSalePrice) pmSalePrice.value = (prod.salePriceRaw != null) ? priceInputValue(prod.salePriceRaw) : '';
       if (pmStock) pmStock.value = prod.stock;
-      if (pmImg) pmImg.value = prod.img || '';
       if (pmDesc) pmDesc.value = prod.desc || '';
       if (pmSpecs) pmSpecs.value = prod.specs || '';
-      if (pmImagePreview) pmImagePreview.src = adminImgPath(prod.img);
+      pmImages = (prod.images && prod.images.length) ? prod.images.slice() : (prod.img ? [prod.img] : []);
+      pmMainImg = prod.img || pmImages[0] || '';
+      renderPmThumbs();
       productModal.classList.add('is-open');
     }
   };
@@ -386,10 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const prev = btn ? btn.innerHTML : '';
       if (btn) { btn.disabled = true; btn.innerHTML = 'Speichern …'; }
       try {
-        let imgVal = (pmImg.value || '').trim();
-        if (imgVal.startsWith('../assets/')) imgVal = imgVal.replace('../assets/', 'assets/');
-        if (pmProcessedBlob) { imgVal = await LoeglAPI.uploadImage(pmProcessedBlob); }
-        if (!imgVal) imgVal = 'assets/products/wmf_topfset.jpg';
+        const imgVal = pmMainImg || pmImages[0] || 'assets/products/wmf_topfset.jpg';
 
         const idVal = pmId.value;
         const existing = idVal ? currentProducts.find(p => p.id === idVal) : null;
@@ -404,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
           stock: parseInt(pmStock.value) || 0,
           active: existing ? existing.active : true,
           img: imgVal,
+          images: pmImages.length ? pmImages : (imgVal ? [imgVal] : []),
           desc: pmDesc.value.trim(),
           specs: pmSpecs.value.trim()
         });

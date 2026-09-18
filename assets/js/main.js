@@ -342,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------------------------------------------------------
      4. Dynamic Click & Collect Catalog Renderer
      --------------------------------------------------------- */
+  let shopProductsById = {};
   const productGrid = document.getElementById('productGrid');
   const catalogFilters = document.getElementById('catalogFilters');
 
@@ -357,6 +358,9 @@ document.addEventListener('DOMContentLoaded', () => {
       productGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;"><p style="color: #c62828; font-size: 1.05rem;">Die Produkte konnten gerade nicht geladen werden. Bitte später erneut versuchen.</p></div>`;
       return;
     }
+
+    shopProductsById = {};
+    activeProducts.forEach(p => { shopProductsById[p.id] = p; });
 
     productGrid.innerHTML = '';
     if (activeProducts.length === 0) {
@@ -570,6 +574,105 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentTargetProduct = null;
 
+  /* ---- Produkt-Detail-Galerie + Bild-Lightbox ---- */
+  const infoGalleryMain = document.getElementById('infoGalleryMain');
+  const infoThumbs = document.getElementById('infoThumbs');
+  const infoPrev = document.getElementById('infoPrev');
+  const infoNext = document.getElementById('infoNext');
+  const productLightbox = document.getElementById('productLightbox');
+  const plImg = document.getElementById('plImg');
+  const plPrev = document.getElementById('plPrev');
+  const plNext = document.getElementById('plNext');
+  const plClose = document.getElementById('plClose');
+  const plCounter = document.getElementById('plCounter');
+
+  let infoImages = [];
+  let infoIndex = 0;
+
+  function renderInfoGallery() {
+    if (!infoModalImg) return;
+    if (!infoImages.length) { infoModalImg.removeAttribute('src'); if (infoThumbs) infoThumbs.innerHTML = ''; return; }
+    if (infoIndex < 0 || infoIndex >= infoImages.length) infoIndex = 0;
+    infoModalImg.src = infoImages[infoIndex];
+    const multi = infoImages.length > 1;
+    if (infoPrev) infoPrev.style.display = multi ? '' : 'none';
+    if (infoNext) infoNext.style.display = multi ? '' : 'none';
+    if (infoThumbs) {
+      infoThumbs.innerHTML = '';
+      if (multi) {
+        infoImages.forEach((url, i) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'pg__thumb' + (i === infoIndex ? ' is-active' : '');
+          b.innerHTML = '<img src="' + url + '" alt="" />';
+          b.addEventListener('click', () => { infoIndex = i; renderInfoGallery(); });
+          infoThumbs.appendChild(b);
+        });
+      }
+    }
+  }
+  function infoGoTo(delta) {
+    if (infoImages.length < 2) return;
+    infoIndex = (infoIndex + delta + infoImages.length) % infoImages.length;
+    renderInfoGallery();
+  }
+  if (infoPrev) infoPrev.addEventListener('click', (e) => { e.stopPropagation(); infoGoTo(-1); });
+  if (infoNext) infoNext.addEventListener('click', (e) => { e.stopPropagation(); infoGoTo(1); });
+  if (infoGalleryMain) {
+    infoGalleryMain.addEventListener('click', (e) => {
+      if (e.target.closest('.pg__arrow')) return;
+      openProductLightbox(infoImages, infoIndex);
+    });
+    let sx = 0;
+    infoGalleryMain.addEventListener('touchstart', (e) => { sx = e.changedTouches[0].clientX; }, { passive: true });
+    infoGalleryMain.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) infoGoTo(dx < 0 ? 1 : -1); }, { passive: true });
+  }
+
+  let plImages = [];
+  let plIndex = 0;
+  let plTimer = null;
+  function plShow() {
+    if (!plImages.length || !plImg) return;
+    plImg.src = plImages[plIndex];
+    const multi = plImages.length > 1;
+    if (plCounter) { plCounter.textContent = (plIndex + 1) + ' / ' + plImages.length; plCounter.style.display = multi ? '' : 'none'; }
+    if (plPrev) plPrev.style.display = multi ? '' : 'none';
+    if (plNext) plNext.style.display = multi ? '' : 'none';
+  }
+  function openProductLightbox(images, start) {
+    if (!productLightbox || !images || !images.length) return;
+    clearTimeout(plTimer);
+    plImages = images.slice();
+    plIndex = start || 0;
+    plShow();
+    productLightbox.hidden = false;
+    document.body.classList.add('glightbox-open');
+    void productLightbox.offsetWidth;
+    productLightbox.classList.add('is-open');
+  }
+  function plGo(delta) { if (plImages.length < 2) return; plIndex = (plIndex + delta + plImages.length) % plImages.length; plShow(); }
+  function closeProductLightbox() {
+    if (!productLightbox) return;
+    productLightbox.classList.remove('is-open');
+    document.body.classList.remove('glightbox-open');
+    plTimer = setTimeout(() => { productLightbox.hidden = true; }, 300);
+  }
+  if (plPrev) plPrev.addEventListener('click', () => plGo(-1));
+  if (plNext) plNext.addEventListener('click', () => plGo(1));
+  if (plClose) plClose.addEventListener('click', closeProductLightbox);
+  if (productLightbox) {
+    productLightbox.addEventListener('click', (e) => { if (e.target === productLightbox) closeProductLightbox(); });
+    let px = 0;
+    productLightbox.addEventListener('touchstart', (e) => { px = e.changedTouches[0].clientX; }, { passive: true });
+    productLightbox.addEventListener('touchend', (e) => { const dx = e.changedTouches[0].clientX - px; if (Math.abs(dx) > 50) plGo(dx < 0 ? 1 : -1); }, { passive: true });
+    document.addEventListener('keydown', (e) => {
+      if (productLightbox.hidden) return;
+      if (e.key === 'Escape') closeProductLightbox();
+      else if (e.key === 'ArrowLeft') plGo(-1);
+      else if (e.key === 'ArrowRight') plGo(1);
+    });
+  }
+
   function openReservationModal(prodData) {
     currentTargetProduct = prodData;
     if (ccProductImg) ccProductImg.src = prodData.img;
@@ -587,7 +690,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openInfoModal(prodData) {
     currentTargetProduct = prodData;
-    if (infoModalImg) infoModalImg.src = prodData.img;
+    infoImages = (prodData.images && prodData.images.length) ? prodData.images : (prodData.img ? [prodData.img] : []);
+    infoIndex = 0;
+    renderInfoGallery();
     if (infoModalBrand) infoModalBrand.textContent = prodData.brand;
     if (infoModalTitle) infoModalTitle.textContent = prodData.title;
     if (infoModalPrice) infoModalPrice.innerHTML = loeglPriceInline(prodData.price, prodData.sale);
@@ -625,6 +730,8 @@ document.addEventListener('DOMContentLoaded', () => {
         desc: infoBtn.dataset.desc,
         specs: infoBtn.dataset.specs
       };
+      const prodFull = shopProductsById[prodData.id];
+      prodData.images = (prodFull && prodFull.images && prodFull.images.length) ? prodFull.images : (prodData.img ? [prodData.img] : []);
       openInfoModal(prodData);
       return;
     }
