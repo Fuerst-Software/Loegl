@@ -496,6 +496,7 @@ body.glightbox-open { overflow: hidden; }
 
 /* ---------- Product Grid & Compact Shop Cards ---------- */
 .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+#productGrid { grid-auto-rows: 1fr; }
 .prod-card {
   background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r);
   overflow: hidden; display: flex; flex-direction: column; transition: all 0.4s var(--ease);
@@ -512,8 +513,8 @@ body.glightbox-open { overflow: hidden; }
 }
 .prod-card--compact:hover .prod-card__img img { transform: scale(1.06); }
 .prod-card--compact .prod-card__body { padding: 1.3rem; display: flex; flex-direction: column; flex: 1; }
-.prod-card--compact .prod-card__title { font-size: 1.18rem; margin: 0 0 0.4rem; line-height: 1.3; color: var(--ink); }
-.prod-card--compact .prod-card__desc { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; margin: 0 0 1rem; }
+.prod-card--compact .prod-card__title { font-size: 1.18rem; margin: 0 0 0.4rem; line-height: 1.3; color: var(--ink); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 2.6em; }
+.prod-card--compact .prod-card__desc { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; margin: 0 0 1rem; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: 3em; }
 
 /* ---------- FLUSH ACTION CARD BANNER IMAGE STYLING ---------- */
 .card__media--banner {
