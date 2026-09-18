@@ -156,8 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <span style="font-size: 0.8rem; color: var(--ink-soft);">${prod.category || ''}</span>
         </td>
         <td>${prod.salePrice
-          ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;">${prod.price}</span><strong style="font-family: var(--serif); font-size: 1.2rem; color: var(--gold-dark);">${prod.salePrice}</strong>`
-          : `<strong style="font-family: var(--serif); font-size: 1.2rem; color: var(--ink);">${prod.price}</strong>`}</td>
+          ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--sans);font-variant-numeric:tabular-nums;">${prod.price}</span><strong style="font-family:var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-0.01em;font-size:1.15rem;color:var(--gold-dark);">${prod.salePrice}</strong>`
+          : `<strong style="font-family:var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-0.01em;font-size:1.15rem;color:var(--ink);">${prod.price}</strong>`}</td>
         <td>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <button class="stock-btn" onclick="adjustStock('${prod.id}', -1)">-</button>
@@ -554,6 +554,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------------- RESERVIERUNGEN ---------------- */
   const reservationsBody = document.getElementById('reservationsBody');
+  const resFilterBtns = Array.from(document.querySelectorAll('#resFilters .res-filter'));
+  let resFilter = 'all';
+  resFilterBtns.forEach(btn => btn.addEventListener('click', () => {
+    resFilter = btn.dataset.status;
+    resFilterBtns.forEach(b => b.classList.toggle('is-active', b === btn));
+    renderReservations();
+  }));
 
   async function renderReservations() {
     if (!reservationsBody) return;
@@ -562,13 +569,23 @@ document.addEventListener('DOMContentLoaded', () => {
     try { list = await LoeglAPI.getReservations(); }
     catch (err) { console.error(err); reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:#c62828;">Reservierungen konnten nicht geladen werden.</td></tr>`; return; }
 
-    if (!list.length) {
-      reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">Noch keine Reservierungen.</td></tr>`;
+    // Zähler je Status an den Filter-Buttons
+    const counts = { all: list.length, offen: 0, abgeholt: 0, storniert: 0 };
+    list.forEach(r => { if (counts[r.status] != null) counts[r.status]++; });
+    const labels = { all: 'Alle', offen: 'Offen', abgeholt: 'Abgeholt', storniert: 'Storniert' };
+    resFilterBtns.forEach(btn => {
+      const s = btn.dataset.status;
+      btn.textContent = (labels[s] || s) + ' (' + (counts[s] != null ? counts[s] : 0) + ')';
+    });
+
+    const filtered = (resFilter === 'all') ? list : list.filter(r => r.status === resFilter);
+    if (!filtered.length) {
+      reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">${list.length ? 'Keine Reservierungen mit diesem Status.' : 'Noch keine Reservierungen.'}</td></tr>`;
       return;
     }
     const statusColor = { offen: '#e0934a', abgeholt: '#2e7d32', storniert: '#c62828' };
     reservationsBody.innerHTML = '';
-    list.forEach(r => {
+    filtered.forEach(r => {
       const d = new Date(r.created_at);
       const dateStr = d.toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       const tr = document.createElement('tr');

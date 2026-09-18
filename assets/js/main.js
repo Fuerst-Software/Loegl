@@ -117,20 +117,22 @@ function getShopAktionen() {
   } catch (e) { return DEFAULT_AKTIONEN; }
 }
 
-/* Preisdarstellung: UVP klein & durchgestrichen oben, Aktionspreis groß & hervorgehoben (Blickfang) */
+/* Preisdarstellung: UVP klein & durchgestrichen oben, Aktionspreis groß & hervorgehoben (Blickfang).
+   Klare, gut lesbare Schrift (Plus Jakarta Sans) mit tabellarischen Ziffern. */
+var LOEGL_NUM = 'font-family:var(--sans);font-variant-numeric:tabular-nums;letter-spacing:-0.01em;';
 function loeglPriceStack(uvp, sale, bigSize) {
   bigSize = bigSize || '1.5rem';
   if (sale && String(sale).trim()) {
-    return '<span style="font-size:0.78rem;color:var(--ink-soft);text-decoration:line-through;display:block;line-height:1.2;">UVP ' + uvp + '</span>'
-         + '<strong style="font-family:var(--serif);font-size:' + bigSize + ';color:var(--gold-dark);display:block;line-height:1.2;">' + sale + '</strong>';
+    return '<span style="' + LOEGL_NUM + 'font-size:0.72rem;font-weight:600;color:var(--ink-soft);text-decoration:line-through;display:block;line-height:1.2;">UVP ' + uvp + '</span>'
+         + '<strong style="' + LOEGL_NUM + 'font-weight:700;font-size:' + bigSize + ';color:var(--gold-dark);display:block;line-height:1.25;">' + sale + '</strong>';
   }
-  return '<strong style="font-family:var(--serif);font-size:' + bigSize + ';color:var(--ink);">' + uvp + '</strong>';
+  return '<strong style="' + LOEGL_NUM + 'font-weight:700;font-size:' + bigSize + ';color:var(--ink);">' + uvp + '</strong>';
 }
 function loeglPriceInline(uvp, sale) {
   if (sale && String(sale).trim()) {
-    return '<span style="text-decoration:line-through;color:var(--ink-soft);font-weight:400;font-size:0.85em;">' + uvp + '</span> <strong style="color:var(--gold-dark);">' + sale + '</strong>';
+    return '<span style="' + LOEGL_NUM + 'text-decoration:line-through;color:var(--ink-soft);font-weight:500;font-size:0.78em;">' + uvp + '</span> <strong style="' + LOEGL_NUM + 'font-weight:700;color:var(--gold-dark);">' + sale + '</strong>';
   }
-  return uvp;
+  return '<span style="' + LOEGL_NUM + 'font-weight:700;">' + uvp + '</span>';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -695,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderInfoGallery();
     if (infoModalBrand) infoModalBrand.textContent = prodData.brand;
     if (infoModalTitle) infoModalTitle.textContent = prodData.title;
-    if (infoModalPrice) infoModalPrice.innerHTML = loeglPriceInline(prodData.price, prodData.sale);
+    if (infoModalPrice) infoModalPrice.innerHTML = loeglPriceStack(prodData.price, prodData.sale, '1.9rem');
     if (infoModalDesc) infoModalDesc.textContent = prodData.desc || 'Keine ausführliche Beschreibung verfügbar.';
     if (infoModalSpecs) infoModalSpecs.textContent = prodData.specs || 'Keine zusätzlichen Spezifikationen.';
 
