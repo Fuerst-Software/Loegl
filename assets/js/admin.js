@@ -155,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <strong style="color: var(--gold-dark); font-size: 0.85rem; text-transform: uppercase;">${prod.brand || ''}</strong><br />
           <span style="font-size: 0.8rem; color: var(--ink-soft);">${prod.category || ''}</span>
         </td>
-        <td>${prod.salePrice
-          ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--price);font-variant-numeric:tabular-nums;">${prod.price}</span><strong style="font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;font-size:1.1rem;color:var(--gold-dark);">${prod.salePrice}</strong>`
-          : `<strong style="font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;font-size:1.1rem;color:var(--ink);">${prod.price}</strong>`}</td>
+        <td style="white-space:nowrap;">${prod.salePrice
+          ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--price);font-variant-numeric:tabular-nums;white-space:nowrap;">${prod.price}</span><strong style="font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;font-weight:600;font-size:1.1rem;color:var(--gold-dark);white-space:nowrap;">${prod.salePrice}</strong>`
+          : `<strong style="font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;font-weight:600;font-size:1.1rem;color:var(--ink);white-space:nowrap;">${prod.price}</strong>`}</td>
         <td>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <button class="stock-btn" onclick="adjustStock('${prod.id}', -1)">-</button>

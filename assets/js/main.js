@@ -119,20 +119,20 @@ function getShopAktionen() {
 
 /* Preisdarstellung: UVP klein & durchgestrichen oben, Aktionspreis groß & hervorgehoben (Blickfang).
    Klare, gut lesbare Schrift (Plus Jakarta Sans) mit tabellarischen Ziffern. */
-var LOEGL_NUM = 'font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;';
+var LOEGL_NUM = 'font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;white-space:nowrap;';
 function loeglPriceStack(uvp, sale, bigSize) {
   bigSize = bigSize || '1.5rem';
   if (sale && String(sale).trim()) {
-    return '<span style="' + LOEGL_NUM + 'font-size:0.72rem;font-weight:600;color:var(--ink-soft);text-decoration:line-through;display:block;line-height:1.2;">UVP ' + uvp + '</span>'
-         + '<strong style="' + LOEGL_NUM + 'font-weight:700;font-size:' + bigSize + ';color:var(--gold-dark);display:block;line-height:1.25;">' + sale + '</strong>';
+    return '<span style="' + LOEGL_NUM + 'font-size:0.72rem;font-weight:500;color:var(--ink-soft);text-decoration:line-through;display:block;line-height:1.2;">UVP ' + uvp + '</span>'
+         + '<strong style="' + LOEGL_NUM + 'font-weight:600;font-size:' + bigSize + ';color:var(--gold-dark);display:block;line-height:1.25;">' + sale + '</strong>';
   }
-  return '<strong style="' + LOEGL_NUM + 'font-weight:700;font-size:' + bigSize + ';color:var(--ink);">' + uvp + '</strong>';
+  return '<strong style="' + LOEGL_NUM + 'font-weight:600;font-size:' + bigSize + ';color:var(--ink);">' + uvp + '</strong>';
 }
 function loeglPriceInline(uvp, sale) {
   if (sale && String(sale).trim()) {
-    return '<span style="' + LOEGL_NUM + 'text-decoration:line-through;color:var(--ink-soft);font-weight:500;font-size:0.78em;">' + uvp + '</span> <strong style="' + LOEGL_NUM + 'font-weight:700;color:var(--gold-dark);">' + sale + '</strong>';
+    return '<span style="' + LOEGL_NUM + 'text-decoration:line-through;color:var(--ink-soft);font-weight:500;font-size:0.78em;">' + uvp + '</span> <strong style="' + LOEGL_NUM + 'font-weight:600;color:var(--gold-dark);">' + sale + '</strong>';
   }
-  return '<span style="' + LOEGL_NUM + 'font-weight:700;">' + uvp + '</span>';
+  return '<span style="' + LOEGL_NUM + 'font-weight:600;">' + uvp + '</span>';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
