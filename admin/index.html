@@ -111,6 +111,7 @@
         <button class="admin-tab-btn" id="navTabReservations">
           <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
           <span>Reservierungen</span>
+          <span class="nav-badge" id="navResBadge" hidden>0</span>
         </button>
       </div>
 
@@ -387,6 +388,12 @@
         <button type="submit" class="btn btn--gold btn--wide"><span>Aktion im Shop speichern &amp; aktivieren</span></button>
       </form>
     </div>
+  </div>
+
+  <!-- Benachrichtigung bei neuer Reservierung -->
+  <div class="admin-toast" id="adminToast" hidden>
+    <span style="font-size:1.1rem;">🔔</span>
+    <span id="adminToastMsg"></span>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>

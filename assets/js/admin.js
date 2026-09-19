@@ -63,7 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (navTabProducts) navTabProducts.addEventListener('click', () => activateTab('products'));
   if (navTabAktionen) navTabAktionen.addEventListener('click', () => activateTab('aktionen'));
-  if (navTabReservations) navTabReservations.addEventListener('click', () => activateTab('reservations'));
+  if (navTabReservations) navTabReservations.addEventListener('click', () => {
+    try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+    activateTab('reservations');
+  });
 
   /* ---------------- SESSION / LOGIN ---------------- */
   async function checkSession() {
@@ -75,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderDashboard();
       renderAktionenDashboard();
       updateOpenReservationsKpi();
+      initReservationAlerts();
     } else {
       if (loginView) loginView.style.display = 'flex';
       if (dashboardView) dashboardView.style.display = 'none';
@@ -104,6 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       try { await LoeglAPI.signOut(); } catch (e) {}
+      if (resPollInterval) { clearInterval(resPollInterval); resPollInterval = null; }
+      resAlertsStarted = false;
       checkSession();
     });
   }
@@ -562,8 +568,87 @@ document.addEventListener('DOMContentLoaded', () => {
     renderReservations();
   }));
 
+  /* ---- Benachrichtigung bei neuer Reservierung ---- */
+  function getResLastSeen() { var v = localStorage.getItem('loegl_res_last_seen'); return v ? parseInt(v, 10) : 0; }
+  function setResLastSeen(ms) { try { localStorage.setItem('loegl_res_last_seen', String(ms)); } catch (e) {} }
+  let resNotifiedIds = new Set();
+  let resAlertsStarted = false;
+  let resPollInterval = null;
+
+  function updateResBadge(list) {
+    var badge = document.getElementById('navResBadge');
+    if (!badge) return;
+    var lastSeen = getResLastSeen();
+    var count = (list || []).filter(function (r) { return Date.parse(r.created_at) > lastSeen; }).length;
+    if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.hidden = false; }
+    else { badge.hidden = true; }
+  }
+
+  function showAdminToast(msg) {
+    var t = document.getElementById('adminToast'), m = document.getElementById('adminToastMsg');
+    if (!t || !m) return;
+    m.textContent = msg;
+    t.hidden = false;
+    void t.offsetWidth;
+    t.classList.add('is-show');
+    clearTimeout(showAdminToast._t);
+    showAdminToast._t = setTimeout(function () { t.classList.remove('is-show'); setTimeout(function () { t.hidden = true; }, 350); }, 6000);
+  }
+
+  function playBeep() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      var actx = playBeep._ctx || (playBeep._ctx = new AC());
+      if (actx.state === 'suspended') actx.resume();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = 'sine'; o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0.0001, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.25, actx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.35);
+      o.start(); o.stop(actx.currentTime + 0.36);
+    } catch (e) {}
+  }
+
+  function notifyNewReservations(newOnes) {
+    var r0 = newOnes[0];
+    var msg = newOnes.length === 1
+      ? ('Neue Reservierung: ' + r0.customer_name + ' – ' + (r0.product_title || 'Artikel'))
+      : (newOnes.length + ' neue Reservierungen eingegangen');
+    showAdminToast(msg);
+    playBeep();
+    try { if (window.Notification && Notification.permission === 'granted') new Notification('Lögl · Neue Reservierung', { body: msg, tag: 'loegl-res' }); } catch (e) {}
+  }
+
+  async function pollReservations() {
+    let list;
+    try { list = await LoeglAPI.getReservations(); } catch (e) { return; }
+    var lastSeen = getResLastSeen();
+    var newOnes = list.filter(function (r) { return Date.parse(r.created_at) > lastSeen && !resNotifiedIds.has(r.id); });
+    if (newOnes.length) {
+      newOnes.forEach(function (r) { resNotifiedIds.add(r.id); });
+      notifyNewReservations(newOnes);
+    }
+    updateResBadge(list);
+    if (tabReservationsView && tabReservationsView.style.display !== 'none') renderReservations();
+  }
+
+  async function initReservationAlerts() {
+    if (resAlertsStarted) return;
+    resAlertsStarted = true;
+    try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+    let list = [];
+    try { list = await LoeglAPI.getReservations(); } catch (e) {}
+    if (getResLastSeen() === 0) {
+      var baseline = list.length ? Math.max.apply(null, list.map(function (r) { return Date.parse(r.created_at); })) : Date.now();
+      setResLastSeen(baseline);
+    }
+    updateResBadge(list);
+    resPollInterval = setInterval(pollReservations, 45000);
+  }
+
   async function renderReservations() {
     if (!reservationsBody) return;
+    var lastSeenAtRender = getResLastSeen();
     reservationsBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">Reservierungen werden geladen …</td></tr>`;
     let list;
     try { list = await LoeglAPI.getReservations(); }
@@ -588,9 +673,11 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(r => {
       const d = new Date(r.created_at);
       const dateStr = d.toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const isNew = Date.parse(r.created_at) > lastSeenAtRender;
       const tr = document.createElement('tr');
+      if (isNew) tr.className = 'res-row-new';
       tr.innerHTML = `
-        <td><span style="font-size:0.85rem;color:var(--ink);font-weight:600;">${dateStr}</span></td>
+        <td>${isNew ? '<span class="res-new-badge">NEU</span>' : ''}<span style="font-size:0.85rem;color:var(--ink);font-weight:600;">${dateStr}</span></td>
         <td><strong style="color:var(--ink);">${r.product_title || '—'}</strong></td>
         <td>
           <strong style="color:var(--ink);font-size:0.98rem;">${r.customer_name}</strong><br>
@@ -608,6 +695,10 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       reservationsBody.appendChild(tr);
     });
+
+    // Der Inhaber sieht die Liste jetzt an -> als gesehen markieren (Badge zurücksetzen)
+    if (list.length) setResLastSeen(Math.max.apply(null, list.map(function (r) { return Date.parse(r.created_at); })));
+    updateResBadge(list);
   }
 
   window.setReservationStatus = async function (id, status) {

@@ -628,6 +628,15 @@ input:checked + .slider:before { transform: translateX(20px); }
 .res-filter { font-family: var(--sans); font-size: 0.82rem; font-weight: 600; padding: 0.5em 1.1em; border-radius: 20px; border: 1px solid var(--line); background: #fff; color: var(--ink-soft); cursor: pointer; transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease); }
 .res-filter:hover { border-color: var(--line-gold); color: var(--ink); }
 .res-filter.is-active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* Neue-Reservierung: Tab-Badge, NEU-Markierung, Toast */
+.admin-tab-btn { position: relative; }
+.nav-badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: #c62828; color: #fff; font-family: var(--price); font-size: 0.72rem; font-weight: 700; margin-left: 0.5rem; line-height: 1; }
+tr.res-row-new { background: rgba(196, 154, 69, 0.12); box-shadow: inset 3px 0 0 var(--gold-dark); }
+.res-new-badge { display: inline-block; background: #c62828; color: #fff; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+.admin-toast { position: fixed; top: 1.2rem; right: 1.2rem; z-index: 4000; background: var(--ink); color: #fff; padding: 0.9rem 1.2rem; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.28); font-size: 0.9rem; max-width: 340px; display: flex; align-items: center; gap: 0.6rem; transform: translateY(-10px); opacity: 0; transition: transform 0.3s var(--ease), opacity 0.3s var(--ease); }
+.admin-toast.is-show { transform: translateY(0); opacity: 1; }
+@media (max-width: 640px) { .admin-toast { left: 0.8rem; right: 0.8rem; max-width: none; } }
 .footer__nav { display: flex; flex-direction: column; gap: 0.75rem; }
 .footer__nav h4 { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); margin: 0 0 0.8rem; font-weight: 700; }
 .footer__nav a, .footer__nav span { color: var(--on-dark-soft); font-size: 0.95rem; transition: color 0.25s; }
