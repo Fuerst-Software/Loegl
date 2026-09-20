@@ -646,6 +646,16 @@ document.addEventListener('DOMContentLoaded', () => {
     resPollInterval = setInterval(pollReservations, 45000);
   }
 
+  // Escapt Text für die Verwendung in einem einfach-quotierten JS-String
+  // innerhalb eines doppelt-quotierten onclick-Attributs.
+  function resAttr(s) {
+    return String(s == null ? '' : s)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '&quot;')
+      .replace(/[\r\n]+/g, ' ');
+  }
+
   async function renderReservations() {
     if (!reservationsBody) return;
     var lastSeenAtRender = getResLastSeen();
@@ -690,6 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn btn--ghost" style="padding:0.4em 0.7em;font-size:0.74rem;" onclick="setReservationStatus('${r.id}','abgeholt')">Abgeholt</button>
             <button class="btn btn--ghost" style="padding:0.4em 0.7em;font-size:0.74rem;" onclick="setReservationStatus('${r.id}','offen')">Offen</button>
             <button class="btn btn--ghost" style="padding:0.4em 0.7em;font-size:0.74rem;color:#c62828;border-color:rgba(198,40,40,0.25);" onclick="setReservationStatus('${r.id}','storniert')">Stornieren</button>
+            <button class="btn btn--ghost" title="Reservierung endgültig löschen" style="padding:0.4em 0.7em;font-size:0.74rem;color:#8a8a8a;border-color:rgba(0,0,0,0.12);" onclick="deleteReservation('${r.id}', '${resAttr((r.customer_name || '') + ' – ' + (r.product_title || ''))}')">🗑 Löschen</button>
           </div>
         </td>
       `;
@@ -704,6 +715,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.setReservationStatus = async function (id, status) {
     try { await LoeglAPI.setReservationStatus(id, status); renderReservations(); updateOpenReservationsKpi(); }
     catch (err) { console.error(err); alert('Status konnte nicht geändert werden.'); }
+  };
+
+  window.deleteReservation = async function (id, label) {
+    if (!confirm('Diese Reservierung wird endgültig gelöscht' + (label ? ' (' + label + ')' : '') + '.\n\nDas kann nicht rückgängig gemacht werden. Fortfahren?')) return;
+    try { await LoeglAPI.deleteReservation(id); renderReservations(); updateOpenReservationsKpi(); }
+    catch (err) { console.error(err); alert('Reservierung konnte nicht gelöscht werden.'); }
   };
 
   async function updateOpenReservationsKpi() {

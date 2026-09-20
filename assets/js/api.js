@@ -66,8 +66,8 @@
   // Korrigiert EXIF-Drehung, passt das Bild verzerrungsfrei auf eine weiße
   // Fläche im Zielformat ein (nichts wird abgeschnitten), verkleinert & komprimiert.
   var IMG_PRESETS = {
-    product: { w: 1200, h: 900, quality: 0.85 },   // 4:3  (Produktkarten)
-    aktion:  { w: 1600, h: 900, quality: 0.85 }    // 16:9 (Aktions-Banner)
+    product: { w: 1200, h: 900, quality: 0.92 },   // 4:3  (Produktkarten)
+    aktion:  { w: 1600, h: 900, quality: 0.92 }    // 16:9 (Aktions-Banner)
   };
   async function loadBitmap(file) {
     if (window.createImageBitmap) {
@@ -99,36 +99,10 @@
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(src, dx, dy, dw, dh);
     if (src.close) src.close();
-    whitenBackground(ctx, preset.w, preset.h);
+    // Bewusst KEINE Farb-/Helligkeitsbearbeitung: Das Foto wird 1:1 übernommen und
+    // nur verzerrungsfrei mittig in das Zielformat eingepasst (weißer Rand füllt auf).
     var blob = await new Promise(function (res) { canvas.toBlob(res, 'image/jpeg', preset.quality); });
     return blob || file;
-  }
-  // Hintergrund automatisch aufweißen: helle, wenig gesättigte Pixel, die mit dem
-  // Rand verbunden sind, auf reines Weiß setzen (Flood-Fill). Farbige/dunkle
-  // Produktbereiche wirken als Grenze und bleiben unangetastet.
-  function whitenBackground(ctx, W, H) {
-    var img;
-    try { img = ctx.getImageData(0, 0, W, H); } catch (e) { return; }
-    var d = img.data, N = W * H;
-    var visited = new Uint8Array(N);
-    var stack = [];
-    function push(x, y) { var i = y * W + x; if (!visited[i]) { visited[i] = 1; stack.push(i); } }
-    for (var x = 0; x < W; x++) { push(x, 0); push(x, H - 1); }
-    for (var y = 0; y < H; y++) { push(0, y); push(W - 1, y); }
-    while (stack.length) {
-      var i = stack.pop(), p = i * 4;
-      var r = d[p], g = d[p + 1], b = d[p + 2];
-      var mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
-      var mn = r < g ? (r < b ? r : b) : (g < b ? g : b);
-      if (mn < 170 || (mx - mn) > 32) continue; // Produktgrenze -> nicht aufweißen/ausbreiten
-      d[p] = 255; d[p + 1] = 255; d[p + 2] = 255;
-      var xx = i % W, yy = (i - xx) / W;
-      if (xx > 0) push(xx - 1, yy);
-      if (xx < W - 1) push(xx + 1, yy);
-      if (yy > 0) push(xx, yy - 1);
-      if (yy < H - 1) push(xx, yy + 1);
-    }
-    ctx.putImageData(img, 0, 0);
   }
   async function uploadImage(blobOrFile) {
     var path = 'products/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
@@ -226,6 +200,10 @@
     },
     setReservationStatus: async function (id, status) {
       var res = await client.from('reservations').update({ status: status }).eq('id', id);
+      if (res.error) throw res.error;
+    },
+    deleteReservation: async function (id) {
+      var res = await client.from('reservations').delete().eq('id', id);
       if (res.error) throw res.error;
     },
 
