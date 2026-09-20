@@ -104,11 +104,34 @@
     var blob = await new Promise(function (res) { canvas.toBlob(res, 'image/jpeg', preset.quality); });
     return blob || file;
   }
+  var STORAGE_BUCKET = 'product-images';
   async function uploadImage(blobOrFile) {
     var path = 'products/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
-    var up = await client.storage.from('product-images').upload(path, blobOrFile, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
+    var up = await client.storage.from(STORAGE_BUCKET).upload(path, blobOrFile, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
     if (up.error) throw up.error;
-    return client.storage.from('product-images').getPublicUrl(path).data.publicUrl;
+    return client.storage.from(STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+  // Aus einer öffentlichen Storage-URL den Datei-Pfad im Bucket ermitteln.
+  // Liefert null für Demo-/Fremdpfade (z. B. 'assets/...'), die NICHT im Bucket liegen.
+  function storagePathFromUrl(u) {
+    if (!u || typeof u !== 'string') return null;
+    var marker = '/storage/v1/object/public/' + STORAGE_BUCKET + '/';
+    var i = u.indexOf(marker);
+    if (i === -1) return null;
+    var p = u.slice(i + marker.length).split('?')[0];
+    try { p = decodeURIComponent(p); } catch (e) { /* Pfad unverändert lassen */ }
+    return p || null;
+  }
+  // Alle zu einem Datensatz gehörenden Bilddateien aus dem Storage entfernen.
+  async function removeStorageImages(urls) {
+    var paths = [];
+    (urls || []).forEach(function (u) {
+      var p = storagePathFromUrl(u);
+      if (p && paths.indexOf(p) === -1) paths.push(p);
+    });
+    if (!paths.length) return;
+    try { await client.storage.from(STORAGE_BUCKET).remove(paths); }
+    catch (e) { console.warn('[LoeglAPI] Storage-Aufräumen fehlgeschlagen:', e); }
   }
 
   window.LoeglAPI = {
@@ -167,8 +190,18 @@
       return res.data[0];
     },
     deleteProduct: async function (id) {
+      // Erst die zugehörigen Bild-URLs holen, dann Datensatz löschen, dann Dateien räumen
+      var urls = [];
+      try {
+        var got = await client.from('products').select('img, images').eq('id', id).single();
+        if (!got.error && got.data) {
+          if (got.data.img) urls.push(got.data.img);
+          if (Array.isArray(got.data.images)) urls = urls.concat(got.data.images);
+        }
+      } catch (e) { /* Bild-Aufräumen ist optional, Löschen hat Vorrang */ }
       var res = await client.from('products').delete().eq('id', id);
       if (res.error) throw res.error;
+      await removeStorageImages(urls);
     },
 
     getAllAktionen: async function () {
@@ -189,8 +222,14 @@
       return res.data[0];
     },
     deleteAktion: async function (id) {
+      var urls = [];
+      try {
+        var got = await client.from('aktionen').select('img').eq('id', id).single();
+        if (!got.error && got.data && got.data.img) urls.push(got.data.img);
+      } catch (e) { /* Bild-Aufräumen ist optional, Löschen hat Vorrang */ }
       var res = await client.from('aktionen').delete().eq('id', id);
       if (res.error) throw res.error;
+      await removeStorageImages(urls);
     },
 
     getReservations: async function () {
