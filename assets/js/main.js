@@ -389,6 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const article = document.createElement('article');
         article.className = 'prod-card prod-card--compact reveal is-in';
         article.dataset.category = prod.category || 'haushalt';
+        article.dataset.id = prod.id;
 
         const inStock = (prod.stock || 0) > 0;
         const stockBadge = inStock
@@ -405,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>`;
 
         article.innerHTML = `
-          <div class="prod-card__img">
+          <div class="prod-card__img" style="cursor: pointer;" title="Für Details & weitere Bilder klicken">
             <img src="${prod.img}" alt="${prod.title}" />
           </div>
           <div class="prod-card__body">
@@ -465,6 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
      --------------------------------------------------------- */
   const aktionenGrid = document.getElementById('aktionenGrid');
   const aktionenFilters = document.getElementById('aktionenFilters');
+  let aktionsProdukteById = {};   // für die Detailansicht (inkl. weiterer Bilder)
 
   // Kachel für ein Aktionsprodukt (Shop-Artikel, der im Aktionen-Bereich erscheint).
   // Führt per Button direkt zur Reservierung des Produkts im Click & Collect Shop.
@@ -472,18 +474,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('article');
     card.className = 'card reveal is-in';
     card.dataset.type = 'angebot';
+    card.dataset.aktProdId = prod.id;
     card.setAttribute('style', 'border: 1px solid var(--line-gold);');
 
     const inStock = (prod.stock || 0) > 0;
     const cta = inStock
-      ? `<a href="click-and-collect.html?produkt=${prod.id}" class="btn btn--primary" style="font-size: 0.85rem; padding: 0.7em 1.2em;">
-           <span>Diesen Artikel reservieren</span>
-           <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      ? `<a href="click-and-collect.html?produkt=${prod.id}" class="btn btn--primary" style="font-size: 0.8rem; padding: 0.65em 0.5em; text-align: center;">
+           <span>Reservieren</span>
          </a>`
-      : `<span class="btn btn--ghost" style="font-size: 0.85rem; padding: 0.7em 1.2em; opacity: 0.55; pointer-events: none;"><span>Derzeit ausverkauft</span></span>`;
+      : `<span class="btn btn--ghost" style="font-size: 0.8rem; padding: 0.65em 0.5em; opacity: 0.55; pointer-events: none;"><span>Ausverkauft</span></span>`;
 
     card.innerHTML = `
-      <div class="card__media--banner">
+      <div class="card__media--banner" style="cursor: pointer;" title="Details ansehen">
         <img src="${prod.img}" alt="${prod.title}" />
       </div>
       <div class="card__body" style="padding: 1.8rem;">
@@ -510,7 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         ` : ''}
 
-        <div style="margin-top: auto;">
+        <div style="margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+          <button type="button" class="btn btn--ghost aktprod-details" style="font-size: 0.8rem; padding: 0.65em 0.5em;"><span>Mehr Infos</span></button>
           ${cta}
         </div>
       </div>
@@ -550,8 +553,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Zuerst die reservierbaren Aktionsprodukte (führen direkt zum Shop)
+    // Zuerst die reservierbaren Aktionsprodukte (mit Detailansicht + Reservierung)
+    aktionsProdukteById = {};
     aktionsProdukte.forEach(prod => {
+      aktionsProdukteById[prod.id] = prod;
       aktionenGrid.appendChild(buildAktionsproduktCard(prod));
     });
 
@@ -822,13 +827,43 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Klick irgendwo auf eine Aktionsprodukt-Kachel (Aktionen-Seite) -> Detailansicht.
+    // Ausnahme: der "Reservieren"-Link (a) führt normal in den Shop.
+    const aktCard = e.target.closest('.card[data-akt-prod-id]');
+    if (aktCard && !e.target.closest('a')) {
+      openInfoModalForProduct(aktionsProdukteById[aktCard.dataset.aktProdId]);
+      return;
+    }
+
+    // Klick irgendwo auf eine Shop-Produktkachel (nicht auf einen Button) -> Detailansicht
+    const shopCard = e.target.closest('.prod-card--compact');
+    if (shopCard && shopCard.dataset.id && !e.target.closest('button') && !e.target.closest('a')) {
+      openInfoModalForProduct(shopProductsById[shopCard.dataset.id]);
+      return;
+    }
+
     if (e.target === ccModal) ccModal.classList.remove('is-open');
     if (e.target === productInfoModal) productInfoModal.classList.remove('is-open');
   });
 
+  // Öffnet die Detailansicht für ein Produktobjekt (normProduct-Form, inkl. weiterer Bilder)
+  function openInfoModalForProduct(p) {
+    if (!p) return;
+    openInfoModal({
+      id: p.id, title: p.title, brand: p.brand,
+      price: p.price, sale: p.salePrice, img: p.img,
+      desc: p.desc, specs: p.specs,
+      images: (p.images && p.images.length) ? p.images : (p.img ? [p.img] : [])
+    });
+  }
+
   if (infoModalReserveBtn) {
     infoModalReserveBtn.addEventListener('click', () => {
-      if (currentTargetProduct) openReservationModal(currentTargetProduct);
+      if (!currentTargetProduct) return;
+      // Auf der Shop-Seite gibt es das Reservierungs-Modal -> direkt öffnen.
+      // Auf der Aktionen-Seite fehlt es -> zum Shop mit vorausgewähltem Produkt.
+      if (ccModal) openReservationModal(currentTargetProduct);
+      else window.location.href = 'click-and-collect.html?produkt=' + encodeURIComponent(currentTargetProduct.id);
     });
   }
 
