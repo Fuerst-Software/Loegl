@@ -47,22 +47,27 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------------- TAB-NAVIGATION ---------------- */
   const navTabProducts = document.getElementById('navTabProducts');
   const navTabAktionen = document.getElementById('navTabAktionen');
+  const navTabAktionsprodukte = document.getElementById('navTabAktionsprodukte');
   const navTabReservations = document.getElementById('navTabReservations');
   const tabProductsView = document.getElementById('tabProductsView');
   const tabAktionenView = document.getElementById('tabAktionenView');
+  const tabAktionsprodukteView = document.getElementById('tabAktionsprodukteView');
   const tabReservationsView = document.getElementById('tabReservationsView');
 
   function activateTab(which) {
-    [navTabProducts, navTabAktionen, navTabReservations].forEach(b => b && b.classList.remove('is-active'));
+    [navTabProducts, navTabAktionen, navTabAktionsprodukte, navTabReservations].forEach(b => b && b.classList.remove('is-active'));
     if (tabProductsView) tabProductsView.style.display = 'none';
     if (tabAktionenView) tabAktionenView.style.display = 'none';
+    if (tabAktionsprodukteView) tabAktionsprodukteView.style.display = 'none';
     if (tabReservationsView) tabReservationsView.style.display = 'none';
     if (which === 'products') { navTabProducts && navTabProducts.classList.add('is-active'); if (tabProductsView) tabProductsView.style.display = 'block'; renderDashboard(); }
     if (which === 'aktionen') { navTabAktionen && navTabAktionen.classList.add('is-active'); if (tabAktionenView) tabAktionenView.style.display = 'block'; renderAktionenDashboard(); }
+    if (which === 'aktionsprodukte') { navTabAktionsprodukte && navTabAktionsprodukte.classList.add('is-active'); if (tabAktionsprodukteView) tabAktionsprodukteView.style.display = 'block'; renderAktionsprodukte(); }
     if (which === 'reservations') { navTabReservations && navTabReservations.classList.add('is-active'); if (tabReservationsView) tabReservationsView.style.display = 'block'; renderReservations(); }
   }
   if (navTabProducts) navTabProducts.addEventListener('click', () => activateTab('products'));
   if (navTabAktionen) navTabAktionen.addEventListener('click', () => activateTab('aktionen'));
+  if (navTabAktionsprodukte) navTabAktionsprodukte.addEventListener('click', () => activateTab('aktionsprodukte'));
   if (navTabReservations) navTabReservations.addEventListener('click', () => {
     try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
     activateTab('reservations');
@@ -312,6 +317,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  /* ---------------- AKTIONSPRODUKTE ---------------- */
+  const adminAktionsproduktTableBody = document.getElementById('adminAktionsproduktTableBody');
+  const adminAktionsproduktSearch = document.getElementById('adminAktionsproduktSearch');
+
+  async function renderAktionsprodukte() {
+    if (!adminAktionsproduktTableBody) return;
+    adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--ink-soft);">Aktionsprodukte werden geladen …</td></tr>`;
+    try {
+      currentProducts = await LoeglAPI.getAllProducts();
+    } catch (err) {
+      console.error(err);
+      adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:#c62828;">Aktionsprodukte konnten nicht geladen werden.</td></tr>`;
+      return;
+    }
+    const list = currentProducts.filter(p => p.showInAktionen);
+    const query = adminAktionsproduktSearch ? adminAktionsproduktSearch.value.toLowerCase().trim() : '';
+    const filtered = list.filter(p => (p.title || '').toLowerCase().includes(query) || (p.brand || '').toLowerCase().includes(query));
+
+    adminAktionsproduktTableBody.innerHTML = '';
+    if (!filtered.length) {
+      adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--ink-soft);line-height:1.6;">${list.length
+        ? 'Keine Treffer.'
+        : 'Noch keine Aktionsprodukte.<br>Lege oben ein neues an – oder aktiviere bei einem bestehenden Produkt die Option „Auch im Aktionen-Bereich anzeigen“.'}</td></tr>`;
+      return;
+    }
+
+    filtered.forEach(prod => {
+      const tr = document.createElement('tr');
+      const priceCell = prod.salePrice
+        ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--price);font-variant-numeric:tabular-nums;">${prod.price}</span><strong style="font-family:var(--price);font-variant-numeric:tabular-nums;font-weight:600;font-size:1.1rem;color:var(--gold-dark);">${prod.salePrice}</strong>`
+        : `<strong style="font-family:var(--price);font-variant-numeric:tabular-nums;font-weight:600;font-size:1.1rem;color:var(--ink);">${prod.price}</strong>`;
+      const badgeChip = prod.aktionBadge
+        ? `<span style="display:inline-block;margin-top:0.25rem;font-size:0.7rem;font-weight:700;color:var(--gold-dark);background:var(--gold-light);padding:0.15em 0.55em;border-radius:20px;">${prod.aktionBadge}</span>`
+        : '';
+      const pausedNote = prod.active === false
+        ? `<div style="font-size:0.72rem;color:#e0934a;font-weight:700;margin-top:0.2rem;">Pausiert – aktuell nicht sichtbar</div>` : '';
+      tr.innerHTML = `
+        <td>
+          <div style="display:flex;align-items:center;gap:1rem;">
+            <img src="${adminImgPath(prod.img)}" alt="${prod.title}" style="width:52px;height:52px;object-fit:contain;background:#fff;padding:0.3rem;border-radius:8px;border:1px solid var(--line);flex-shrink:0;" />
+            <div>
+              <strong style="display:block;color:var(--ink);font-size:0.98rem;">${prod.title}</strong>
+              <span style="font-size:0.78rem;color:var(--gold-dark);text-transform:uppercase;font-weight:700;">${prod.brand || ''}</span>
+              ${pausedNote}
+            </div>
+          </div>
+        </td>
+        <td style="white-space:nowrap;">${priceCell}</td>
+        <td><strong style="font-size:0.86rem;color:var(--ink);">${prod.aktionValidText || '—'}</strong><br>${badgeChip}</td>
+        <td><span style="font-weight:700;color:var(--ink);">${prod.stock}</span></td>
+        <td style="text-align:right;">
+          <div style="display:flex;gap:0.5rem;justify-content:flex-end;flex-wrap:wrap;">
+            <button class="btn btn--ghost" style="padding:0.45em 0.85em;font-size:0.78rem;" onclick="editProduct('${prod.id}')">Bearbeiten</button>
+            <button class="btn btn--ghost" style="padding:0.45em 0.85em;font-size:0.78rem;color:#c62828;border-color:rgba(198,40,40,0.25);" onclick="removeFromAktionen('${prod.id}')">Aus Aktionen nehmen</button>
+          </div>
+        </td>
+      `;
+      adminAktionsproduktTableBody.appendChild(tr);
+    });
+  }
+
+  if (adminAktionsproduktSearch) adminAktionsproduktSearch.addEventListener('input', renderAktionsprodukte);
+
+  window.removeFromAktionen = async function (id) {
+    const prod = currentProducts.find(p => p.id === id);
+    if (!prod) return;
+    if (!confirm(`„${prod.title}“ nicht mehr im Aktionen-Bereich anzeigen?\n\nDas Produkt bleibt ganz normal im Shop – es verschwindet nur aus den Aktionen.`)) return;
+    try {
+      await LoeglAPI.saveProduct({ id: prod.id, show_in_aktionen: false });
+      renderAktionsprodukte();
+    } catch (err) { console.error(err); alert('Konnte nicht gespeichert werden.'); }
+  };
+
+  const openAddAktionsproduktBtn = document.getElementById('openAddAktionsproduktBtn');
+  if (openAddAktionsproduktBtn) {
+    openAddAktionsproduktBtn.addEventListener('click', () => openProductModalNew(true));
+  }
+
   /* ---------------- PRODUKT-MODAL ---------------- */
   const productModal = document.getElementById('productModal');
   const openAddModalBtn = document.getElementById('openAddModalBtn');
@@ -330,6 +413,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const pmThumbs = document.getElementById('pmThumbs');
   const pmDesc = document.getElementById('pmDesc');
   const pmSpecs = document.getElementById('pmSpecs');
+  const pmShowInAktionen = document.getElementById('pmShowInAktionen');
+  const pmAktionFields = document.getElementById('pmAktionFields');
+  const pmAktionBadge = document.getElementById('pmAktionBadge');
+  const pmAktionValidText = document.getElementById('pmAktionValidText');
+
+  function setAktionFieldsVisible(show) {
+    if (pmAktionFields) pmAktionFields.style.display = show ? 'grid' : 'none';
+  }
+  if (pmShowInAktionen) pmShowInAktionen.addEventListener('change', () => setAktionFieldsVisible(pmShowInAktionen.checked));
+
+  // Produkt-Modal im "Neu"-Modus öffnen (optional direkt als Aktionsprodukt)
+  function openProductModalNew(asAktionsprodukt) {
+    if (productForm) productForm.reset();
+    if (pmId) pmId.value = '';
+    pmImages = [];
+    pmMainImg = '';
+    renderPmThumbs();
+    if (pmShowInAktionen) pmShowInAktionen.checked = !!asAktionsprodukt;
+    if (pmAktionBadge) pmAktionBadge.value = '';
+    if (pmAktionValidText) pmAktionValidText.value = '';
+    setAktionFieldsVisible(!!asAktionsprodukt);
+    if (productModal) productModal.classList.add('is-open');
+  }
 
   // Bild-Galerie-Zustand des Produkt-Formulars
   let pmImages = [];    // alle Bild-URLs (Reihenfolge)
@@ -388,14 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (openAddModalBtn) {
-    openAddModalBtn.addEventListener('click', () => {
-      if (productForm) productForm.reset();
-      if (pmId) pmId.value = '';
-      pmImages = [];
-      pmMainImg = '';
-      renderPmThumbs();
-      if (productModal) productModal.classList.add('is-open');
-    });
+    openAddModalBtn.addEventListener('click', () => openProductModalNew(false));
   }
   if (productModalClose) productModalClose.addEventListener('click', () => { if (productModal) productModal.classList.remove('is-open'); });
 
@@ -411,6 +510,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pmStock) pmStock.value = prod.stock;
       if (pmDesc) pmDesc.value = prod.desc || '';
       if (pmSpecs) pmSpecs.value = prod.specs || '';
+      if (pmShowInAktionen) pmShowInAktionen.checked = !!prod.showInAktionen;
+      if (pmAktionBadge) pmAktionBadge.value = prod.aktionBadge || '';
+      if (pmAktionValidText) pmAktionValidText.value = prod.aktionValidText || '';
+      setAktionFieldsVisible(!!prod.showInAktionen);
       pmImages = (prod.images && prod.images.length) ? prod.images.slice() : (prod.img ? [prod.img] : []);
       pmMainImg = prod.img || pmImages[0] || '';
       renderPmThumbs();
@@ -442,10 +545,14 @@ document.addEventListener('DOMContentLoaded', () => {
           img: imgVal,
           images: pmImages.length ? pmImages : (imgVal ? [imgVal] : []),
           desc: pmDesc.value.trim(),
-          specs: pmSpecs.value.trim()
+          specs: pmSpecs.value.trim(),
+          show_in_aktionen: pmShowInAktionen ? pmShowInAktionen.checked : false,
+          aktion_badge: pmAktionBadge ? pmAktionBadge.value.trim() : '',
+          aktion_valid_text: pmAktionValidText ? pmAktionValidText.value.trim() : ''
         });
         if (productModal) productModal.classList.remove('is-open');
         renderDashboard();
+        if (tabAktionsprodukteView && tabAktionsprodukteView.style.display !== 'none') renderAktionsprodukte();
       } catch (err) {
         console.error('Produkt speichern fehlgeschlagen:', err);
         alert('Das Produkt konnte nicht gespeichert werden: ' + (err.message || err));

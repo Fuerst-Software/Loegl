@@ -345,8 +345,25 @@ document.addEventListener('DOMContentLoaded', () => {
      4. Dynamic Click & Collect Catalog Renderer
      --------------------------------------------------------- */
   let shopProductsById = {};
+  let deepLinkDone = false;   // Reservierung per ?produkt=<id> nur einmal automatisch öffnen
   const productGrid = document.getElementById('productGrid');
   const catalogFilters = document.getElementById('catalogFilters');
+
+  // Öffnet – von der Aktionen-Seite verlinkt – direkt die Reservierung des Produkts
+  function maybeOpenDeepLinkReservation() {
+    if (deepLinkDone) return;
+    let pid = null;
+    try { pid = new URLSearchParams(window.location.search).get('produkt'); } catch (e) { return; }
+    if (!pid) return;
+    deepLinkDone = true;
+    const prod = shopProductsById[pid];
+    if (!prod) return;
+    // URL bereinigen, damit ein Reload die Reservierung nicht erneut öffnet
+    try { history.replaceState(null, '', window.location.pathname); } catch (e) {}
+    if ((prod.stock || 0) <= 0) return;
+    if (productGrid) productGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    openReservationModal({ id: prod.id, title: prod.title, brand: prod.brand, price: prod.price, sale: prod.salePrice, img: prod.img });
+  }
 
   async function renderPublicProducts() {
     if (!productGrid || !window.LoeglAPI) return;
@@ -416,6 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
         productGrid.appendChild(article);
       });
     }
+
+    maybeOpenDeepLinkReservation();
   }
 
   if (catalogFilters) {
@@ -447,11 +466,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const aktionenGrid = document.getElementById('aktionenGrid');
   const aktionenFilters = document.getElementById('aktionenFilters');
 
+  // Kachel für ein Aktionsprodukt (Shop-Artikel, der im Aktionen-Bereich erscheint).
+  // Führt per Button direkt zur Reservierung des Produkts im Click & Collect Shop.
+  function buildAktionsproduktCard(prod) {
+    const card = document.createElement('article');
+    card.className = 'card reveal is-in';
+    card.dataset.type = 'angebot';
+    card.setAttribute('style', 'border: 1px solid var(--line-gold);');
+
+    const inStock = (prod.stock || 0) > 0;
+    const cta = inStock
+      ? `<a href="click-and-collect.html?produkt=${prod.id}" class="btn btn--primary" style="font-size: 0.85rem; padding: 0.7em 1.2em;">
+           <span>Diesen Artikel reservieren</span>
+           <svg class="icon icon--arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+         </a>`
+      : `<span class="btn btn--ghost" style="font-size: 0.85rem; padding: 0.7em 1.2em; opacity: 0.55; pointer-events: none;"><span>Derzeit ausverkauft</span></span>`;
+
+    card.innerHTML = `
+      <div class="card__media--banner">
+        <img src="${prod.img}" alt="${prod.title}" />
+      </div>
+      <div class="card__body" style="padding: 1.8rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.35em 0.8em; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.4rem; color: var(--gold-dark); background: var(--gold-light);">
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+            <span>Aktionsangebot</span>
+          </span>
+          ${prod.aktionValidText ? `<span style="font-size: 0.8rem; font-weight: 600; color: var(--ink-soft);">${prod.aktionValidText}</span>` : ''}
+        </div>
+
+        <h3 class="card__title" style="font-size: 1.5rem; margin-bottom: 0.6rem; color: var(--ink);">${prod.title}</h3>
+        <p class="card__text" style="font-size: 0.95rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.1rem;">${prod.desc || ''}</p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 1.3rem; flex-wrap: wrap;">
+          <span style="font-size: 0.72rem; color: var(--ink-soft);">${prod.salePrice ? 'Aktionspreis' : 'Preis'}</span>
+          <div style="text-align: right;">${loeglPriceStack(prod.price, prod.salePrice, '1.5rem')}</div>
+        </div>
+
+        ${prod.aktionBadge ? `
+          <div style="background: var(--paper-3); border-left: 3px solid var(--gold-dark); padding: 0.7rem 0.9rem; border-radius: 0 8px 8px 0; font-size: 0.85rem; font-weight: 600; color: var(--ink); margin-bottom: 1.4rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg class="icon icon--gold" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>${prod.aktionBadge}</span>
+          </div>
+        ` : ''}
+
+        <div style="margin-top: auto;">
+          ${cta}
+        </div>
+      </div>
+    `;
+    return card;
+  }
+
   async function renderPublicAktionen() {
     if (!aktionenGrid || !window.LoeglAPI) return;
     aktionenGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;"><p style="color: var(--ink-soft); font-size: 1.05rem;">Aktionen werden geladen …</p></div>`;
 
-    let activeAktionen;
+    let activeAktionen, aktionsProdukte = [];
     try {
       activeAktionen = await LoeglAPI.getAktionen();
     } catch (err) {
@@ -459,10 +530,18 @@ document.addEventListener('DOMContentLoaded', () => {
       aktionenGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;"><p style="color: #c62828; font-size: 1.05rem;">Die Aktionen konnten gerade nicht geladen werden.</p></div>`;
       return;
     }
+    // Aktionsprodukte separat & ausfallsicher laden (funktioniert auch, falls die
+    // DB-Spalten noch nicht angelegt sind – dann bleibt die Liste einfach leer).
+    try {
+      if (LoeglAPI.getAktionsprodukte) aktionsProdukte = await LoeglAPI.getAktionsprodukte() || [];
+    } catch (err) {
+      console.warn('Aktionsprodukte konnten nicht geladen werden (evtl. DB-Migration ausstehend):', err);
+      aktionsProdukte = [];
+    }
 
     aktionenGrid.innerHTML = '';
 
-    if (activeAktionen.length === 0) {
+    if (activeAktionen.length === 0 && aktionsProdukte.length === 0) {
       aktionenGrid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
           <p style="color: var(--ink-soft); font-size: 1.05rem;">Derzeit sind keine Aktionen geschaltet.</p>
@@ -470,6 +549,11 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       return;
     }
+
+    // Zuerst die reservierbaren Aktionsprodukte (führen direkt zum Shop)
+    aktionsProdukte.forEach(prod => {
+      aktionenGrid.appendChild(buildAktionsproduktCard(prod));
+    });
 
     activeAktionen.forEach(akt => {
       const card = document.createElement('article');

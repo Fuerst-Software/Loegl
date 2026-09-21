@@ -108,6 +108,10 @@
           <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
           <span>Aktuelle Aktionen</span>
         </button>
+        <button class="admin-tab-btn" id="navTabAktionsprodukte">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line><circle cx="12" cy="12" r="2.5"></circle></svg>
+          <span>Aktionsprodukte</span>
+        </button>
         <button class="admin-tab-btn" id="navTabReservations">
           <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
           <span>Reservierungen</span>
@@ -218,6 +222,41 @@
         </div>
       </div>
 
+      <!-- ================= SECTION 2b: AKTIONSPRODUKTE TAB ================= -->
+      <div id="tabAktionsprodukteView" style="display: none;">
+        <div style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-weight: 500; font-size: clamp(2rem, 3.5vw, 2.6rem); margin: 0 0 0.4rem; color: var(--ink);">
+            Aktions-<em>produkte.</em>
+          </h1>
+          <p style="color: var(--ink-soft); font-size: 0.98rem; margin: 0; max-width: 640px;">
+            Artikel, die gleichzeitig im Click &amp; Collect Shop <strong>und</strong> im Aktionen-Bereich der Website erscheinen.
+            Einmal anlegen – reservierbar im Shop, sichtbar bei den Aktionen (mit Direkt-Link zur Reservierung).
+          </p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--paper-2); padding: 1.1rem 1.5rem; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 1.8rem; flex-wrap: wrap; gap: 1rem;">
+          <input type="text" id="adminAktionsproduktSearch" class="admin-input-luxury" placeholder="Aktionsprodukt suchen..." style="max-width: 440px;" />
+          <button id="openAddAktionsproduktBtn" class="btn btn--gold">
+            <span>+ Neues Aktionsprodukt</span>
+          </button>
+        </div>
+
+        <div class="admin-card-luxury admin-table-container" style="padding: 0;">
+          <table class="admin-table-luxury">
+            <thead>
+              <tr>
+                <th>Produkt &amp; Vorschau</th>
+                <th>Preis / Aktionspreis</th>
+                <th>Aktions-Gültigkeit</th>
+                <th>Lager</th>
+                <th style="text-align: right;">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="adminAktionsproduktTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- ================= SECTION 3: RESERVATIONS TAB ================= -->
       <div id="tabReservationsView" style="display: none;">
         <div style="margin-bottom: 2rem;">
@@ -322,6 +361,28 @@
         <div style="margin-bottom: 1.8rem;">
           <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.4rem;">Technische Details / Specs</label>
           <input type="text" id="pmSpecs" class="admin-input-luxury" placeholder="Material, Leistung, Fassungsvermögen..." />
+        </div>
+
+        <!-- Aktionsprodukt-Option -->
+        <div style="margin-bottom: 1.8rem; border: 1px solid var(--line-gold); background: var(--gold-light); border-radius: 12px; padding: 1.1rem 1.2rem;">
+          <label style="display: flex; align-items: flex-start; gap: 0.7rem; cursor: pointer;">
+            <input type="checkbox" id="pmShowInAktionen" style="width: 20px; height: 20px; margin-top: 0.1rem; flex-shrink: 0; accent-color: var(--gold-dark);" />
+            <span>
+              <strong style="display: block; color: var(--ink); font-size: 0.95rem;">Auch im Aktionen-Bereich anzeigen</strong>
+              <span style="font-size: 0.78rem; color: var(--ink-soft); line-height: 1.5;">Das Produkt erscheint zusätzlich auf der Aktionen-Seite – mit Button „Diesen Artikel reservieren“, der direkt zum Shop führt. Am besten einen Aktionspreis (oben) setzen.</span>
+            </span>
+          </label>
+
+          <div id="pmAktionFields" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--line-gold); grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.35rem;">Aktions-Hinweis (Badge)</label>
+              <input type="text" id="pmAktionBadge" class="admin-input-luxury" placeholder="z. B. -20 % oder Aktionspreis" />
+            </div>
+            <div>
+              <label style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--gold-dark); display: block; margin-bottom: 0.35rem;">Gültig bis (Text)</label>
+              <input type="text" id="pmAktionValidText" class="admin-input-luxury" placeholder="z. B. Gültig bis 31. Oktober 2026" />
+            </div>
+          </div>
         </div>
 
         <button type="submit" class="btn btn--gold btn--wide"><span>Produkt im Shop speichern &amp; aktivieren</span></button>

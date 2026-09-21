@@ -43,7 +43,11 @@
       img: r.img,
       images: (Array.isArray(r.images) && r.images.length) ? r.images : (r.img ? [r.img] : []),
       desc: r.description,
-      specs: r.specs
+      specs: r.specs,
+      // Aktionsprodukt: erscheint zusätzlich im Aktionen-Bereich der Website
+      showInAktionen: r.show_in_aktionen === true,
+      aktionBadge: r.aktion_badge || '',
+      aktionValidText: r.aktion_valid_text || ''
     };
   }
 
@@ -153,6 +157,15 @@
       return res.data.map(normAktion);
     },
 
+    // Aktionsprodukte: aktive Shop-Produkte, die zusätzlich im Aktionen-Bereich erscheinen sollen
+    getAktionsprodukte: async function () {
+      var res = await client.from('products').select('*')
+        .eq('active', true).eq('show_in_aktionen', true)
+        .order('created_at', { ascending: true });
+      if (res.error) throw res.error;
+      return res.data.map(normProduct);
+    },
+
     // Atomare Reservierung über die DB-Funktion (prüft Lager, zieht ab) – nur Name + Telefon
     createReservation: async function (productId, name, phone) {
       var res = await client.rpc('create_reservation', {
@@ -182,6 +195,11 @@
         images: Array.isArray(p.images) ? p.images : [],
         description: p.desc, specs: p.specs
       };
+      // Aktionsprodukt-Felder nur setzen, wenn übergeben (damit Teil-Updates wie
+      // Lagerbestand/Status die Aktions-Einstellung nicht versehentlich zurücksetzen).
+      if (p.show_in_aktionen !== undefined) row.show_in_aktionen = !!p.show_in_aktionen;
+      if (p.aktion_badge !== undefined) row.aktion_badge = (p.aktion_badge || '').trim() || null;
+      if (p.aktion_valid_text !== undefined) row.aktion_valid_text = (p.aktion_valid_text || '').trim() || null;
       var q = p.id
         ? client.from('products').update(row).eq('id', p.id).select()
         : client.from('products').insert(row).select();
