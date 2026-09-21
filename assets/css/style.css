@@ -159,10 +159,10 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid transparent; transition: all 0.4s var(--ease);
 }
 .header.is-stuck { border-color: var(--line); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05); }
-.header__inner { display: flex; align-items: center; justify-content: space-between; height: 88px; }
+.header__inner { display: flex; align-items: center; justify-content: space-between; height: 104px; }
 
 .brand { display: flex; align-items: center; gap: 0.8rem; line-height: 0; }
-.brand__logo { height: 64px; width: auto; mix-blend-mode: multiply; transition: opacity 0.3s, transform 0.3s; }
+.brand__logo { height: 84px; width: auto; mix-blend-mode: multiply; transition: opacity 0.3s, transform 0.3s; }
 
 .nav { display: flex; align-items: center; gap: 1.8rem; }
 .nav__link {
@@ -697,8 +697,8 @@ tr.res-row-new { background: rgba(196, 154, 69, 0.12); box-shadow: inset 3px 0 0
   .topbar__link { font-size: 0.76rem !important; font-weight: 600 !important; color: var(--gold-light) !important; }
 
   .header { position: sticky; top: 0; z-index: 120; }
-  .header__inner { height: 70px; }
-  .brand__logo { height: 52px; }
+  .header__inner { height: 84px; }
+  .brand__logo { height: 66px; }
 
   /* Mobile Navigation Menu Clean Card Dropdown (Zero Extra Contact Boxes) */
   .burger { display: flex !important; align-items: center; justify-content: center; z-index: 130; width: 44px; height: 44px; padding: 10px 8px; border-radius: 8px; background: rgba(22, 21, 19, 0.04); }
