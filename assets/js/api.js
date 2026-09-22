@@ -48,6 +48,7 @@
       showInAktionen: r.show_in_aktionen === true,
       aktionBadge: r.aktion_badge || '',
       aktionValidText: r.aktion_valid_text || '',
+      aktionShowDesc: r.aktion_show_desc === true,   // Beschreibung auf der Aktions-Kachel zeigen?
       // Manuelle Reihenfolge (kleiner = weiter oben)
       sortOrder: (r.sort_order != null) ? r.sort_order : 0,
       created_at: r.created_at
@@ -210,6 +211,7 @@
       if (p.show_in_aktionen !== undefined) row.show_in_aktionen = !!p.show_in_aktionen;
       if (p.aktion_badge !== undefined) row.aktion_badge = (p.aktion_badge || '').trim() || null;
       if (p.aktion_valid_text !== undefined) row.aktion_valid_text = (p.aktion_valid_text || '').trim() || null;
+      if (p.aktion_show_desc !== undefined) row.aktion_show_desc = !!p.aktion_show_desc;
       if (p.sort_order !== undefined) row.sort_order = Number(p.sort_order) || 0;
       var q = p.id
         ? client.from('products').update(row).eq('id', p.id).select()
@@ -221,6 +223,11 @@
     // Nur die Reihenfolge-Spalte aktualisieren (lässt alle Produktdaten unberührt)
     setProductSortOrder: async function (id, sortOrder) {
       var res = await client.from('products').update({ sort_order: Number(sortOrder) || 0 }).eq('id', id);
+      if (res.error) throw res.error;
+    },
+    // Nur die übergebenen Felder aktualisieren – alle anderen Produktdaten bleiben unberührt.
+    updateProductFields: async function (id, fields) {
+      var res = await client.from('products').update(fields).eq('id', id);
       if (res.error) throw res.error;
     },
     deleteProduct: async function (id) {

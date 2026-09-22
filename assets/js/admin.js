@@ -203,25 +203,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (adminSearch) adminSearch.addEventListener('input', renderDashboard);
 
+  // Rendert den gerade sichtbaren Produkt-Tab neu (Produkte oder Aktionsprodukte)
+  function renderActiveProductTab() {
+    if (tabAktionsprodukteView && tabAktionsprodukteView.style.display !== 'none') renderAktionsprodukte();
+    else renderDashboard();
+  }
+
   window.adjustStock = async function (id, delta) {
     const prod = currentProducts.find(p => p.id === id);
     if (!prod) return;
     const newStock = Math.max(0, (prod.stock || 0) + delta);
     try {
-      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, sale_price: prod.salePriceRaw, stock: newStock, active: prod.active, img: prod.img, desc: prod.desc, specs: prod.specs });
+      await LoeglAPI.updateProductFields(id, { stock: newStock });
       prod.stock = newStock;
-      renderDashboard();
+      renderActiveProductTab();
     } catch (err) { console.error(err); alert('Lagerbestand konnte nicht gespeichert werden.'); }
   };
 
   window.toggleProductActive = async function (id, state) {
     const prod = currentProducts.find(p => p.id === id);
     if (!prod) return;
-    const onAktionsprodukteTab = tabAktionsprodukteView && tabAktionsprodukteView.style.display !== 'none';
     try {
-      await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, sale_price: prod.salePriceRaw, stock: prod.stock, active: state, img: prod.img, desc: prod.desc, specs: prod.specs });
-      if (onAktionsprodukteTab) renderAktionsprodukte(); else renderDashboard();
-    } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); if (onAktionsprodukteTab) renderAktionsprodukte(); else renderDashboard(); }
+      await LoeglAPI.updateProductFields(id, { active: state });
+      prod.active = state;
+      renderActiveProductTab();
+    } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); renderActiveProductTab(); }
+  };
+
+  // Beschreibung auf der Aktions-Kachel an/aus (ändert nur dieses eine Feld)
+  window.toggleAktionDesc = async function (id, state) {
+    const prod = currentProducts.find(p => p.id === id);
+    if (!prod) return;
+    try {
+      await LoeglAPI.updateProductFields(id, { aktion_show_desc: state });
+      prod.aktionShowDesc = state;
+      renderActiveProductTab();
+    } catch (err) { console.error(err); alert('Konnte nicht gespeichert werden.'); renderActiveProductTab(); }
   };
 
   window.deleteProduct = async function (id) {
@@ -360,12 +377,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function renderAktionsprodukte() {
     if (!adminAktionsproduktTableBody) return;
-    adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--ink-soft);">Aktionsprodukte werden geladen …</td></tr>`;
+    adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);">Aktionsprodukte werden geladen …</td></tr>`;
     try {
       currentProducts = await LoeglAPI.getAllProducts();
     } catch (err) {
       console.error(err);
-      adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:#c62828;">Aktionsprodukte konnten nicht geladen werden.</td></tr>`;
+      adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:#c62828;">Aktionsprodukte konnten nicht geladen werden.</td></tr>`;
       return;
     }
     const list = currentProducts.filter(p => p.showInAktionen);
@@ -374,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     adminAktionsproduktTableBody.innerHTML = '';
     if (!filtered.length) {
-      adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--ink-soft);line-height:1.6;">${list.length
+      adminAktionsproduktTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--ink-soft);line-height:1.6;">${list.length
         ? 'Keine Treffer.'
         : 'Noch keine Aktionsprodukte.<br>Lege oben ein neues an – oder aktiviere bei einem bestehenden Produkt die Option „Auch im Aktionen-Bereich anzeigen“.'}</td></tr>`;
       return;
@@ -383,22 +400,12 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(prod => {
       const fullIdx = list.findIndex(p => p.id === prod.id);
       const total = list.length;
-      const tr = document.createElement('tr');
-      const priceCell = prod.salePrice
-        ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--price);font-variant-numeric:tabular-nums;">${prod.price}</span><strong style="font-family:var(--price);font-variant-numeric:tabular-nums;font-weight:600;font-size:1.1rem;color:var(--gold-dark);">${prod.salePrice}</strong>`
-        : `<strong style="font-family:var(--price);font-variant-numeric:tabular-nums;font-weight:600;font-size:1.1rem;color:var(--ink);">${prod.price}</strong>`;
-      const badgeChip = prod.aktionBadge
-        ? `<span style="display:inline-block;margin-top:0.25rem;font-size:0.7rem;font-weight:700;color:var(--gold-dark);background:var(--gold-light);padding:0.15em 0.55em;border-radius:20px;">${prod.aktionBadge}</span>`
-        : '';
       const isActive = prod.active !== false;
-      const statusToggle = `
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.45rem;">
-          <label class="switch">
-            <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleProductActive('${prod.id}', this.checked)" />
-            <span class="slider"></span>
-          </label>
-          <span style="font-size:0.76rem;font-weight:700;color:${isActive ? '#2e7d32' : '#e0934a'};">${isActive ? 'Aktiv (sichtbar)' : 'Pausiert (ausgeblendet)'}</span>
-        </div>`;
+      const showDesc = prod.aktionShowDesc === true;
+      const priceCell = prod.salePrice
+        ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--price);font-variant-numeric:tabular-nums;white-space:nowrap;">${prod.price}</span><strong style="font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;font-weight:600;font-size:1.1rem;color:var(--gold-dark);white-space:nowrap;">${prod.salePrice}</strong>`
+        : `<strong style="font-family:var(--price);font-variant-numeric:tabular-nums;letter-spacing:0.01em;font-weight:600;font-size:1.1rem;color:var(--ink);white-space:nowrap;">${prod.price}</strong>`;
+      const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>
           <div style="display:flex;align-items:center;gap:1rem;">
@@ -406,14 +413,34 @@ document.addEventListener('DOMContentLoaded', () => {
             <img src="${adminImgPath(prod.img)}" alt="${prod.title}" style="width:52px;height:52px;object-fit:contain;background:#fff;padding:0.3rem;border-radius:8px;border:1px solid var(--line);flex-shrink:0;" />
             <div>
               <strong style="display:block;color:var(--ink);font-size:0.98rem;">${prod.title}</strong>
-              <span style="font-size:0.78rem;color:var(--gold-dark);text-transform:uppercase;font-weight:700;">${prod.brand || ''}</span>
-              ${statusToggle}
+              <span style="font-size:0.76rem;color:var(--ink-soft);font-family:monospace;">${prod.sku || ''}</span>
             </div>
           </div>
         </td>
+        <td>
+          <strong style="color:var(--gold-dark);font-size:0.85rem;text-transform:uppercase;">${prod.brand || ''}</strong><br />
+          <span style="font-size:0.8rem;color:var(--ink-soft);">${prod.category || ''}</span>
+        </td>
         <td style="white-space:nowrap;">${priceCell}</td>
-        <td><strong style="font-size:0.86rem;color:var(--ink);">${prod.aktionValidText || '—'}</strong><br>${badgeChip}</td>
-        <td><span style="font-weight:700;color:var(--ink);">${prod.stock}</span></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <button class="stock-btn" onclick="adjustStock('${prod.id}', -1)">-</button>
+            <span style="font-weight:700;min-width:24px;text-align:center;color:var(--ink);">${prod.stock}</span>
+            <button class="stock-btn" onclick="adjustStock('${prod.id}', 1)">+</button>
+          </div>
+        </td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:0.55rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <label class="switch"><input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleProductActive('${prod.id}', this.checked)" /><span class="slider"></span></label>
+              <span style="font-size:0.8rem;font-weight:700;color:${isActive ? '#2e7d32' : '#e0934a'};">${isActive ? 'Aktiv (Im Shop)' : 'Pausiert'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <label class="switch"><input type="checkbox" ${showDesc ? 'checked' : ''} onchange="toggleAktionDesc('${prod.id}', this.checked)" /><span class="slider"></span></label>
+              <span style="font-size:0.8rem;font-weight:700;color:${showDesc ? '#2e7d32' : 'var(--ink-soft)'};">Beschreibung ${showDesc ? 'an' : 'aus'}</span>
+            </div>
+          </div>
+        </td>
         <td style="text-align:right;">
           <div style="display:flex;gap:0.5rem;justify-content:flex-end;flex-wrap:wrap;">
             <button class="btn btn--ghost" style="padding:0.45em 0.85em;font-size:0.78rem;" onclick="editProduct('${prod.id}')">Bearbeiten</button>
@@ -432,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!prod) return;
     if (!confirm(`„${prod.title}“ nicht mehr im Aktionen-Bereich anzeigen?\n\nDas Produkt bleibt ganz normal im Shop – es verschwindet nur aus den Aktionen.`)) return;
     try {
-      await LoeglAPI.saveProduct({ id: prod.id, show_in_aktionen: false });
+      await LoeglAPI.updateProductFields(id, { show_in_aktionen: false });
       renderAktionsprodukte();
     } catch (err) { console.error(err); alert('Konnte nicht gespeichert werden.'); }
   };
