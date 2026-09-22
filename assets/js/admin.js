@@ -423,22 +423,15 @@ document.addEventListener('DOMContentLoaded', () => {
         </td>
         <td style="white-space:nowrap;">${priceCell}</td>
         <td>
-          <div style="display:flex;align-items:center;gap:0.5rem;">
-            <button class="stock-btn" onclick="adjustStock('${prod.id}', -1)">-</button>
-            <span style="font-weight:700;min-width:24px;text-align:center;color:var(--ink);">${prod.stock}</span>
-            <button class="stock-btn" onclick="adjustStock('${prod.id}', 1)">+</button>
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <label class="switch"><input type="checkbox" ${showDesc ? 'checked' : ''} onchange="toggleAktionDesc('${prod.id}', this.checked)" /><span class="slider"></span></label>
+            <span style="font-size:0.8rem;font-weight:700;color:${showDesc ? '#2e7d32' : 'var(--ink-soft)'};">${showDesc ? 'An (auf Kachel)' : 'Aus (nur Details)'}</span>
           </div>
         </td>
         <td>
-          <div style="display:flex;flex-direction:column;gap:0.55rem;">
-            <div style="display:flex;align-items:center;gap:0.6rem;">
-              <label class="switch"><input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleProductActive('${prod.id}', this.checked)" /><span class="slider"></span></label>
-              <span style="font-size:0.8rem;font-weight:700;color:${isActive ? '#2e7d32' : '#e0934a'};">${isActive ? 'Aktiv (Im Shop)' : 'Pausiert'}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:0.6rem;">
-              <label class="switch"><input type="checkbox" ${showDesc ? 'checked' : ''} onchange="toggleAktionDesc('${prod.id}', this.checked)" /><span class="slider"></span></label>
-              <span style="font-size:0.8rem;font-weight:700;color:${showDesc ? '#2e7d32' : 'var(--ink-soft)'};">Beschreibung ${showDesc ? 'an' : 'aus'}</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <label class="switch"><input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleProductActive('${prod.id}', this.checked)" /><span class="slider"></span></label>
+            <span style="font-size:0.8rem;font-weight:700;color:${isActive ? '#2e7d32' : '#e0934a'};">${isActive ? 'Aktiv (Im Shop)' : 'Pausiert'}</span>
           </div>
         </td>
         <td style="text-align:right;">
