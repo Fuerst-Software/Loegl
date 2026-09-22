@@ -151,10 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     filtered.forEach(prod => {
+      const fullIdx = products.findIndex(p => p.id === prod.id);
+      const total = products.length;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>
           <div style="display: flex; align-items: center; gap: 1rem;">
+            ${orderArrowsHtml(prod.id, fullIdx, total, 'all')}
             <img src="${adminImgPath(prod.img)}" alt="${prod.title}" style="width: 52px; height: 52px; object-fit: contain; background: #fff; padding: 0.3rem; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0;" />
             <div>
               <strong style="display: block; color: var(--ink); font-size: 0.98rem;">${prod.title}</strong>
@@ -225,6 +228,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (prod && confirm(`Möchten Sie das Produkt "${prod.title}" löschen?`)) {
       try { await LoeglAPI.deleteProduct(id); renderDashboard(); }
       catch (err) { console.error(err); alert('Produkt konnte nicht gelöscht werden.'); }
+    }
+  };
+
+  /* ---------------- SORTIERUNG (Reihenfolge im Shop/Aktionen) ---------------- */
+  var ORD_BTN_ON = 'width:28px;height:20px;line-height:1;padding:0;border:1px solid var(--line);background:#fff;border-radius:5px;cursor:pointer;font-size:0.65rem;color:var(--ink);display:flex;align-items:center;justify-content:center;';
+  var ORD_BTN_OFF = 'width:28px;height:20px;line-height:1;padding:0;border:1px solid var(--line);background:var(--paper-3);border-radius:5px;cursor:not-allowed;font-size:0.65rem;color:var(--line);opacity:0.45;display:flex;align-items:center;justify-content:center;';
+  function orderArrowsHtml(id, idx, total, scope) {
+    var up = idx > 0, down = idx < total - 1;
+    return '<div style="display:flex;flex-direction:column;gap:3px;" title="Reihenfolge ändern">'
+      + '<button type="button" aria-label="Nach oben" ' + (up ? '' : 'disabled ') + 'onclick="moveProduct(\'' + id + '\',\'up\',\'' + scope + '\')" style="' + (up ? ORD_BTN_ON : ORD_BTN_OFF) + '">▲</button>'
+      + '<button type="button" aria-label="Nach unten" ' + (down ? '' : 'disabled ') + 'onclick="moveProduct(\'' + id + '\',\'down\',\'' + scope + '\')" style="' + (down ? ORD_BTN_ON : ORD_BTN_OFF) + '">▼</button>'
+      + '</div>';
+  }
+
+  // Verschiebt ein Produkt in der Reihenfolge; ändert NUR die sort_order (keine Produktdaten).
+  window.moveProduct = async function (id, dir, scope) {
+    var full = (scope === 'aktion')
+      ? currentProducts.filter(function (p) { return p.showInAktionen; })
+      : currentProducts.slice();
+    var idx = full.findIndex(function (p) { return p.id === id; });
+    if (idx < 0) return;
+    var swapIdx = (dir === 'up') ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= full.length) return;
+    var a = full[idx], b = full[swapIdx];
+    var aOrder = a.sortOrder || 0, bOrder = b.sortOrder || 0;
+    if (aOrder === bOrder) { aOrder = (idx + 1) * 10; bOrder = (swapIdx + 1) * 10; } // Gleichstand auflösen
+    try {
+      await LoeglAPI.setProductSortOrder(a.id, bOrder);
+      await LoeglAPI.setProductSortOrder(b.id, aOrder);
+      if (scope === 'aktion') renderAktionsprodukte(); else renderDashboard();
+    } catch (e) {
+      console.error(e);
+      alert('Reihenfolge konnte nicht gespeichert werden. Wurde die Sortier-Migration (sortierung.sql) schon ausgeführt?');
     }
   };
 
@@ -344,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     filtered.forEach(prod => {
+      const fullIdx = list.findIndex(p => p.id === prod.id);
+      const total = list.length;
       const tr = document.createElement('tr');
       const priceCell = prod.salePrice
         ? `<span style="font-size:0.72rem;color:var(--ink-soft);text-decoration:line-through;display:block;font-family:var(--price);font-variant-numeric:tabular-nums;">${prod.price}</span><strong style="font-family:var(--price);font-variant-numeric:tabular-nums;font-weight:600;font-size:1.1rem;color:var(--gold-dark);">${prod.salePrice}</strong>`
@@ -356,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tr.innerHTML = `
         <td>
           <div style="display:flex;align-items:center;gap:1rem;">
+            ${orderArrowsHtml(prod.id, fullIdx, total, 'aktion')}
             <img src="${adminImgPath(prod.img)}" alt="${prod.title}" style="width:52px;height:52px;object-fit:contain;background:#fff;padding:0.3rem;border-radius:8px;border:1px solid var(--line);flex-shrink:0;" />
             <div>
               <strong style="display:block;color:var(--ink);font-size:0.98rem;">${prod.title}</strong>
@@ -532,8 +571,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const idVal = pmId.value;
         const existing = idVal ? currentProducts.find(p => p.id === idVal) : null;
+        // Neue Produkte ans Ende der Reihenfolge; bestehende behalten ihre Position
+        const nextSort = existing ? undefined : (currentProducts.reduce((m, p) => Math.max(m, p.sortOrder || 0), 0) + 10);
         await LoeglAPI.saveProduct({
           id: idVal || undefined,
+          sort_order: nextSort,
           sku: existing ? existing.sku : null,
           title: pmTitle.value.trim(),
           brand: pmBrand.value.trim(),

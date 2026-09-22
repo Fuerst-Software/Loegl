@@ -47,8 +47,18 @@
       // Aktionsprodukt: erscheint zusätzlich im Aktionen-Bereich der Website
       showInAktionen: r.show_in_aktionen === true,
       aktionBadge: r.aktion_badge || '',
-      aktionValidText: r.aktion_valid_text || ''
+      aktionValidText: r.aktion_valid_text || '',
+      // Manuelle Reihenfolge (kleiner = weiter oben)
+      sortOrder: (r.sort_order != null) ? r.sort_order : 0,
+      created_at: r.created_at
     };
+  }
+
+  // Nach manueller Reihenfolge sortieren (kleiner sort_order = weiter oben),
+  // bei Gleichstand nach Erstellzeit. Läuft rein clientseitig -> funktioniert
+  // auch, falls die Spalte sort_order (noch) nicht existiert (dann alle = 0).
+  function bySortOrder(a, b) {
+    return (a.sortOrder - b.sortOrder) || (Date.parse(a.created_at || 0) - Date.parse(b.created_at || 0));
   }
 
   function normAktion(r) {
@@ -148,7 +158,7 @@
     getProducts: async function () {
       var res = await client.from('products').select('*').eq('active', true).order('created_at', { ascending: true });
       if (res.error) throw res.error;
-      return res.data.map(normProduct);
+      return res.data.map(normProduct).sort(bySortOrder);
     },
 
     getAktionen: async function () {
@@ -163,7 +173,7 @@
         .eq('active', true).eq('show_in_aktionen', true)
         .order('created_at', { ascending: true });
       if (res.error) throw res.error;
-      return res.data.map(normProduct);
+      return res.data.map(normProduct).sort(bySortOrder);
     },
 
     // Atomare Reservierung über die DB-Funktion (prüft Lager, zieht ab) – nur Name + Telefon
@@ -184,7 +194,7 @@
     getAllProducts: async function () {
       var res = await client.from('products').select('*').order('created_at', { ascending: true });
       if (res.error) throw res.error;
-      return res.data.map(normProduct);
+      return res.data.map(normProduct).sort(bySortOrder);
     },
     saveProduct: async function (p) {
       // p: {id?, sku, title, brand, category, price(number), stock, active, img, desc, specs}
@@ -200,12 +210,18 @@
       if (p.show_in_aktionen !== undefined) row.show_in_aktionen = !!p.show_in_aktionen;
       if (p.aktion_badge !== undefined) row.aktion_badge = (p.aktion_badge || '').trim() || null;
       if (p.aktion_valid_text !== undefined) row.aktion_valid_text = (p.aktion_valid_text || '').trim() || null;
+      if (p.sort_order !== undefined) row.sort_order = Number(p.sort_order) || 0;
       var q = p.id
         ? client.from('products').update(row).eq('id', p.id).select()
         : client.from('products').insert(row).select();
       var res = await q;
       if (res.error) throw res.error;
       return res.data[0];
+    },
+    // Nur die Reihenfolge-Spalte aktualisieren (lässt alle Produktdaten unberührt)
+    setProductSortOrder: async function (id, sortOrder) {
+      var res = await client.from('products').update({ sort_order: Number(sortOrder) || 0 }).eq('id', id);
+      if (res.error) throw res.error;
     },
     deleteProduct: async function (id) {
       // Erst die zugehörigen Bild-URLs holen, dann Datensatz löschen, dann Dateien räumen
