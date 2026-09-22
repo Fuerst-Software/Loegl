@@ -217,10 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleProductActive = async function (id, state) {
     const prod = currentProducts.find(p => p.id === id);
     if (!prod) return;
+    const onAktionsprodukteTab = tabAktionsprodukteView && tabAktionsprodukteView.style.display !== 'none';
     try {
       await LoeglAPI.saveProduct({ id: prod.id, sku: prod.sku, title: prod.title, brand: prod.brand, category: prod.category, price: prod.priceRaw, sale_price: prod.salePriceRaw, stock: prod.stock, active: state, img: prod.img, desc: prod.desc, specs: prod.specs });
-      renderDashboard();
-    } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); renderDashboard(); }
+      if (onAktionsprodukteTab) renderAktionsprodukte(); else renderDashboard();
+    } catch (err) { console.error(err); alert('Status konnte nicht gespeichert werden.'); if (onAktionsprodukteTab) renderAktionsprodukte(); else renderDashboard(); }
   };
 
   window.deleteProduct = async function (id) {
@@ -389,8 +390,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const badgeChip = prod.aktionBadge
         ? `<span style="display:inline-block;margin-top:0.25rem;font-size:0.7rem;font-weight:700;color:var(--gold-dark);background:var(--gold-light);padding:0.15em 0.55em;border-radius:20px;">${prod.aktionBadge}</span>`
         : '';
-      const pausedNote = prod.active === false
-        ? `<div style="font-size:0.72rem;color:#e0934a;font-weight:700;margin-top:0.2rem;">Pausiert – aktuell nicht sichtbar</div>` : '';
+      const isActive = prod.active !== false;
+      const statusToggle = `
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.45rem;">
+          <label class="switch">
+            <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleProductActive('${prod.id}', this.checked)" />
+            <span class="slider"></span>
+          </label>
+          <span style="font-size:0.76rem;font-weight:700;color:${isActive ? '#2e7d32' : '#e0934a'};">${isActive ? 'Aktiv (sichtbar)' : 'Pausiert (ausgeblendet)'}</span>
+        </div>`;
       tr.innerHTML = `
         <td>
           <div style="display:flex;align-items:center;gap:1rem;">
@@ -399,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div>
               <strong style="display:block;color:var(--ink);font-size:0.98rem;">${prod.title}</strong>
               <span style="font-size:0.78rem;color:var(--gold-dark);text-transform:uppercase;font-weight:700;">${prod.brand || ''}</span>
-              ${pausedNote}
+              ${statusToggle}
             </div>
           </div>
         </td>

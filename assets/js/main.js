@@ -497,8 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ${prod.aktionValidText ? `<span style="font-size: 0.8rem; font-weight: 600; color: var(--ink-soft);">${prod.aktionValidText}</span>` : ''}
         </div>
 
-        <h3 class="card__title" style="font-size: 1.5rem; margin-bottom: 0.6rem; color: var(--ink);">${prod.title}</h3>
-        <p class="card__text" style="font-size: 0.95rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.1rem;">${prod.desc || ''}</p>
+        <h3 class="card__title" style="font-size: 1.5rem; margin-bottom: 0.9rem; color: var(--ink);">${prod.title}</h3>
 
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 1.3rem; flex-wrap: wrap;">
           <span style="font-size: 0.72rem; color: var(--ink-soft);">${prod.salePrice ? 'Aktionspreis' : 'Preis'}</span>
