@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
           <tr><td style="padding:5px 14px 5px 0;color:#888;">Zeitpunkt</td><td>${created}</td></tr>
         </table>
         <p style="margin:22px 0 0;">
-          <a href="https://fuerst-software.github.io/Loegl/admin/"
+          <a href="https://www.loegl.at/admin/"
              style="background:#161513;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;display:inline-block;">
             Im Dashboard ansehen
           </a>
