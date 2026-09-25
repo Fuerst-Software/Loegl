@@ -278,6 +278,17 @@
       if (res.error) throw res.error;
       return res.data;
     },
+
+    // Geteilter Admin-Zustand (z. B. "Reservierungen zuletzt gesehen") – account-/shopweit
+    getAdminState: async function (key) {
+      var res = await client.from('admin_state').select('value').eq('key', key).maybeSingle();
+      if (res.error) throw res.error;
+      return res.data ? res.data.value : null;
+    },
+    setAdminState: async function (key, value) {
+      var res = await client.from('admin_state').upsert({ key: key, value: String(value), updated_at: new Date().toISOString() });
+      if (res.error) throw res.error;
+    },
     setReservationStatus: async function (id, status) {
       var res = await client.from('reservations').update({ status: status }).eq('id', id);
       if (res.error) throw res.error;

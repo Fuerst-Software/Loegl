@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try { await LoeglAPI.signOut(); } catch (e) {}
       if (resPollInterval) { clearInterval(resPollInterval); resPollInterval = null; }
       resAlertsStarted = false;
+      resLastSeenMs = null;
       checkSession();
     });
   }
@@ -746,8 +747,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }));
 
   /* ---- Benachrichtigung bei neuer Reservierung ---- */
-  function getResLastSeen() { var v = localStorage.getItem('loegl_res_last_seen'); return v ? parseInt(v, 10) : 0; }
-  function setResLastSeen(ms) { try { localStorage.setItem('loegl_res_last_seen', String(ms)); } catch (e) {} }
+  // "Zuletzt gesehen" wird ZENTRAL in Supabase gespeichert (account-/shopweit),
+  // damit der "neu"-Zähler auf allen Geräten gleich ist. resLastSeenMs ist der
+  // lokale Cache; null = noch nie geladen/gesetzt.
+  var RES_SEEN_KEY = 'reservations_last_seen';
+  var resLastSeenMs = null;
+  function getResLastSeen() { return resLastSeenMs || 0; }
+  function setResLastSeen(ms) {
+    resLastSeenMs = ms;
+    LoeglAPI.setAdminState(RES_SEEN_KEY, ms).catch(function (e) { console.warn('„Gesehen"-Zeit speichern fehlgeschlagen:', e); });
+  }
+  async function loadResLastSeen() {
+    try { var v = await LoeglAPI.getAdminState(RES_SEEN_KEY); resLastSeenMs = (v == null) ? null : parseInt(v, 10); }
+    catch (e) { console.warn('„Gesehen"-Zeit laden fehlgeschlagen:', e); }
+  }
   let resNotifiedIds = new Set();
   let resAlertsStarted = false;
   let resPollInterval = null;
@@ -799,6 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function pollReservations() {
     let list;
     try { list = await LoeglAPI.getReservations(); } catch (e) { return; }
+    await loadResLastSeen();   // account-weit synchron halten (evtl. hat ein anderes Gerät quittiert)
     var lastSeen = getResLastSeen();
     var newOnes = list.filter(function (r) { return Date.parse(r.created_at) > lastSeen && !resNotifiedIds.has(r.id); });
     if (newOnes.length) {
@@ -813,9 +827,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resAlertsStarted) return;
     resAlertsStarted = true;
     try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+    await loadResLastSeen();
     let list = [];
     try { list = await LoeglAPI.getReservations(); } catch (e) {}
-    if (getResLastSeen() === 0) {
+    if (resLastSeenMs == null) {
+      // Erststart: Grundlinie setzen, damit bestehende Reservierungen als „gesehen" gelten
       var baseline = list.length ? Math.max.apply(null, list.map(function (r) { return Date.parse(r.created_at); })) : Date.now();
       setResLastSeen(baseline);
     }

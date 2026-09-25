@@ -997,3 +997,102 @@ document.addEventListener('DOMContentLoaded', () => {
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
 });
+
+/* =========================================================
+   DSGVO Cookie-Consent-Banner (im Website-Look)
+   - Speichert die Wahl in localStorage ('loegl_cookie_consent').
+   - Analytics/Statistik werden nur bei "accepted" geladen (siehe applyConsent).
+   - window.loeglCookieSettings() zeigt den Banner erneut (z. B. für einen
+     "Cookie-Einstellungen"-Link im Footer).
+   ========================================================= */
+(function () {
+  'use strict';
+  var KEY = 'loegl_cookie_consent';
+
+  function getConsent() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function setConsent(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+
+  function applyConsent(v) {
+    if (v === 'accepted') {
+      // TODO: Hier später die Statistik/Analytics laden (z. B. Plausible oder
+      // Google Analytics). Wird nur bei Zustimmung ausgeführt.
+      // Beispiel:
+      // var s = document.createElement('script'); s.src = '...'; document.head.appendChild(s);
+    }
+  }
+
+  function injectStyleOnce() {
+    if (document.getElementById('loegl-cc-style')) return;
+    var css =
+      '.loegl-cc{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);z-index:3000;' +
+      'width:min(680px,calc(100% - 2rem));background:var(--paper-2,#fff);border:1px solid var(--line-gold,rgba(196,154,69,.35));' +
+      'border-radius:16px;box-shadow:0 24px 60px -15px rgba(22,21,19,.20);padding:1.5rem 1.6rem;' +
+      'font-family:var(--sans,sans-serif);color:var(--ink,#161513);animation:loeglccIn .5s cubic-bezier(.22,1,.36,1);}' +
+      '@keyframes loeglccIn{from{opacity:0;transform:translate(-50%,24px);}to{opacity:1;transform:translate(-50%,0);}}' +
+      '.loegl-cc__head{display:flex;align-items:center;gap:.6rem;margin:0 0 .5rem;}' +
+      '.loegl-cc__head svg{color:var(--gold-dark,#9e792e);flex-shrink:0;}' +
+      '.loegl-cc h4{font-family:var(--serif,serif);font-weight:600;font-size:1.3rem;margin:0;color:var(--ink,#161513);}' +
+      '.loegl-cc p{font-size:.9rem;line-height:1.6;color:var(--ink-soft,#6b665e);margin:0 0 1.1rem;}' +
+      '.loegl-cc a{color:var(--gold-dark,#9e792e);text-decoration:underline;}' +
+      '.loegl-cc__btns{display:flex;gap:.6rem;flex-wrap:wrap;}' +
+      '.loegl-cc__btn{font-family:var(--sans,sans-serif);font-weight:700;font-size:.85rem;padding:.72em 1.4em;border-radius:30px;' +
+      'cursor:pointer;border:1px solid var(--line-2,rgba(22,21,19,.16));transition:all .25s cubic-bezier(.22,1,.36,1);}' +
+      '.loegl-cc__btn--accept{background:var(--ink,#161513);color:#fff;border-color:var(--ink,#161513);}' +
+      '.loegl-cc__btn--accept:hover{filter:brightness(1.25);}' +
+      '.loegl-cc__btn--decline{background:var(--paper-3,#f3efe6);color:var(--ink,#161513);}' +
+      '.loegl-cc__btn--decline:hover{border-color:var(--line-gold,rgba(196,154,69,.35));}' +
+      '@media(max-width:520px){.loegl-cc{bottom:0;width:100%;border-radius:16px 16px 0 0;padding:1.3rem 1.1rem;}' +
+      '.loegl-cc__btn{flex:1 1 auto;text-align:center;}}';
+    var st = document.createElement('style');
+    st.id = 'loegl-cc-style';
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
+  function removeBanner() {
+    var el = document.getElementById('loegl-cc');
+    if (el) el.parentNode.removeChild(el);
+  }
+
+  function showBanner() {
+    if (document.getElementById('loegl-cc')) return;
+    injectStyleOnce();
+    var box = document.createElement('div');
+    box.className = 'loegl-cc';
+    box.id = 'loegl-cc';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-live', 'polite');
+    box.setAttribute('aria-label', 'Hinweis zu Cookies');
+    box.innerHTML =
+      '<div class="loegl-cc__head">' +
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path><circle cx="9.5" cy="9.5" r="0.6" fill="currentColor"></circle><circle cx="14.5" cy="13.5" r="0.6" fill="currentColor"></circle><circle cx="9" cy="15" r="0.6" fill="currentColor"></circle></svg>' +
+      '<h4>Datenschutz &amp; Cookies</h4>' +
+      '</div>' +
+      '<p>Wir verwenden nur technisch notwendige Cookies für den Betrieb der Seite. Mit „Alle akzeptieren“ erlauben Sie zusätzlich anonyme Statistik-Cookies, damit wir unser Angebot verbessern können. Details finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>' +
+      '<div class="loegl-cc__btns">' +
+      '<button type="button" class="loegl-cc__btn loegl-cc__btn--accept" data-cc="accepted">Alle akzeptieren</button>' +
+      '<button type="button" class="loegl-cc__btn loegl-cc__btn--decline" data-cc="declined">Nur notwendige</button>' +
+      '</div>';
+    box.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-cc]') : null;
+      if (!b) return;
+      var choice = b.getAttribute('data-cc');
+      setConsent(choice);
+      applyConsent(choice);
+      removeBanner();
+    });
+    document.body.appendChild(box);
+  }
+
+  // Erlaubt einen "Cookie-Einstellungen"-Link (z. B. im Footer): onclick="loeglCookieSettings();return false"
+  window.loeglCookieSettings = function () { showBanner(); };
+
+  function init() {
+    var c = getConsent();
+    if (c === 'accepted' || c === 'declined') { applyConsent(c); return; }
+    showBanner();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
