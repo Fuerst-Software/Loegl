@@ -1012,12 +1012,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function getConsent() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
   function setConsent(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
 
+  var analyticsLoaded = false;
   function applyConsent(v) {
-    if (v === 'accepted') {
-      // TODO: Hier später die Statistik/Analytics laden (z. B. Plausible oder
-      // Google Analytics). Wird nur bei Zustimmung ausgeführt.
-      // Beispiel:
-      // var s = document.createElement('script'); s.src = '...'; document.head.appendChild(s);
+    if (v === 'accepted' && !analyticsLoaded) {
+      analyticsLoaded = true;
+      // Fürst Analytics erst NACH Zustimmung laden (DSGVO).
+      var s = document.createElement('script');
+      s.src = 'assets/js/analytics-tracker.js';
+      s.defer = true;
+      document.head.appendChild(s);
     }
   }
 
